@@ -8,16 +8,16 @@ const ColorPicker = ({ colors, label, selected, onValueChange, ...props }) => {
         <div {...props}>
             <label className="text-gray-500 text-sm">{label}</label>
 
-            <div className="flex space-x-2 mt-2">
+            <div className="flex space-x-2 flex-wrap">
                 {colors.map(c => (
                     <IconButton
-                        className={`rounded w-7 h-7 hover:bg-none border-1 `}
+                        className={`rounded w-7 h-7 hover:bg-none border-1 mt-2`}
                         style={{ backgroundColor: '#' + c }}
                         onClick={(e) => onValueChange(c)}>
                     </IconButton>
                 ))}
 
-                <div className="flex items-center border rounded text-gray-500 text-sm">
+                <div className="flex items-center border rounded text-gray-500 text-sm mt-2">
                     <div className="px-1 h-full bg-gray-100 rounded-l grid items-center">
                         <HashtagIcon className="w-4 h-4 " />
                     </div>

@@ -19,10 +19,10 @@ const ChartSettings = () => {
                 lines={lines}
                 strokeColor={'#' + strokeColor}
                 className="" />
-            <div className="flex flex-col justify-between ">
+
                 {/* <input className="border" type="number" value={seed} onChange={(e) => setSeed(parseInt(e.target.value))}></input> */}
 
-                <div className="grid md:grid-cols-2 gap-5">
+                <div className="grid md:grid-cols-2 gap-5 flex-wrap">
 
 
                     <SelectButtons
@@ -43,7 +43,7 @@ const ChartSettings = () => {
                     <ColorPicker
                         label={"Stroke Color"}
                         selected={strokeColor}
-                        colors={['71717a', '000000', '3730a3', '60a5fa', '059669', 'ec4899', 'c2410c', 'f43f5e']}
+                        colors={['71717a', '000000', '3730a3', '60a5fa', '059669']}
                         onValueChange={c => setStrokeColor(c)}
                         className="md:col-span-2" />
 
@@ -51,7 +51,7 @@ const ChartSettings = () => {
                 </div>
 
 
-            </div>
+
         </div>
 
     )
