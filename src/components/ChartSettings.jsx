@@ -45,7 +45,7 @@ const ChartSettings = () => {
                         selected={strokeColor}
                         colors={['71717a', '000000', '3730a3', '60a5fa', '059669', 'ec4899', 'c2410c', 'f43f5e']}
                         onValueChange={c => setStrokeColor(c)}
-                        className="col-span-2" />
+                        className="md:col-span-2" />
 
 
                 </div>

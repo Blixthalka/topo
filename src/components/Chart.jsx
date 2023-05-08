@@ -31,7 +31,6 @@ const split_lines_at_edges = (lines, boundary_box) => {
         }
         currline.push(line[line.length - 1])
         returnLines.push(currline)
-        //console.log(returnLines.length)
         return returnLines;
     })
 }
@@ -124,7 +123,6 @@ const GenerateGrid = (seed, nrlines, sizeY, sizeX) => {
                                 mapRange(y, 0, gridSize[1] - 1, 0, sizeY),
                             ];
                         });
-                        //lines.push(scaledBand);
                         lines.push(drawShape(scaledBand));
                     });
                 },
@@ -149,12 +147,7 @@ const GenerateGrid = (seed, nrlines, sizeY, sizeX) => {
     })
 
     clipped = clipped.filter(l => l)
-    //console.log("clipped", clipped)
-
-
     const splitted = split_lines_at_edges(clipped, bbox)
-
-
     let filtered = remove_duplicate_lines(splitted)
     const simplified = filtered.map(line => {
         const objectLine = line.map(([x, y]) => { return { x: x, y: y } })
@@ -178,8 +171,8 @@ const Chart = ({ className, strokeWidth = 3, lines = 20, strokeColor = '#000000'
         seed = 2
     }
 
-    let sizeX = 1200;
-    let sizeY = 600;
+    let sizeX = 1600;
+    let sizeY = 800;
     const curve_func_line = line()
         .x(d => d[0])
         .y(d => d[1])
@@ -190,15 +183,8 @@ const Chart = ({ className, strokeWidth = 3, lines = 20, strokeColor = '#000000'
         .curve(curveCatmullRomClosed)
 
     useEffect(() => {
-        //console.log(seed)
         select(ref.current).selectAll("path").remove()
-        // select(ref.current).selectAll("rect").remove()
 
-        // select(ref.current)
-        //     .append("rect")
-        //     .attr("width", "100%")
-        //     .attr("height", "100%")
-        //     .attr("fill", "#a7f3d0");
 
         GenerateGrid(seed, lines, sizeY, sizeX)
             .forEach((line) => {
@@ -211,10 +197,8 @@ const Chart = ({ className, strokeWidth = 3, lines = 20, strokeColor = '#000000'
                 let curve_func;
                 if (is_close(line[0], line[line.length - 1])) {
                     curve_func = curve_func_circle;
-                    console.log("circle ", line[0], line[line.length - 1])
                     line.pop()
                 } else {
-                    console.log("line ", line[0], line[line.length - 1])
                     curve_func = curve_func_line;
                 }
                 select(ref.current)
@@ -230,9 +214,6 @@ const Chart = ({ className, strokeWidth = 3, lines = 20, strokeColor = '#000000'
 
 
     }, [seed, strokeWidth, lines, strokeColor])
-    // select(ref.current)
-    //     .attr("href", 'data:application/octet-stream;base64,' + btoa(select(ref.current).html()))
-    //     .attr("download", "viz.svg")
 
     function download_file(name) {
         let mime_type = "text/plain";
@@ -245,7 +226,6 @@ const Chart = ({ className, strokeWidth = 3, lines = 20, strokeColor = '#000000'
         dlink.download = name;
         dlink.href = window.URL.createObjectURL(blob);
         dlink.onclick = function (e) {
-            // revokeObjectURL needs a delay to work properly
             var that = this;
             setTimeout(function () {
                 window.URL.revokeObjectURL(that.href);
@@ -263,13 +243,11 @@ const Chart = ({ className, strokeWidth = 3, lines = 20, strokeColor = '#000000'
 
     return (
         <div>
-
-
             <div ref={wrapperRef}>
                 <svg
                     ref={ref}
-                    className={`${className}`}
-                    viewBox={"0 0 " + sizeX + " " + sizeY} preserveAspectRatio="xMidYMid meet" >
+                    className={` ${className}`}
+                    viewBox={"0 0 " + sizeX + " " + sizeY} >
                 </svg>
             </div>
             <div className="grid sm:grid-cols-3 gap-5 mt-5">
@@ -289,7 +267,6 @@ const Chart = ({ className, strokeWidth = 3, lines = 20, strokeColor = '#000000'
                     className="bg-green-600 border-green-600 hover:border-green-700 text-white hover:bg-green-700 hover:text-white"
                     onClick={(e) => download_file("topo.svg")}
                     Icon={ArrowDownOnSquareIcon}
-
                 >
                     Download
                 </IconButton>
