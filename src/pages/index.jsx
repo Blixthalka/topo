@@ -11,8 +11,8 @@ const IndexPage = () => {
 
       <div className="mx-auto max-w-3xl px-5">
 
-        <h1 className="text-3xl font-medium  pt-20">Topograhy SVG generation</h1>
-        <h3 className="text-gray-500  mt-3 text-lg">Generate a topographic map for your next design!</h3>
+        <h1 className="text-3xl font-medium  pt-20">Topograhy</h1>
+        <h3 className="text-gray-500  mt-3 text-lg">Generate a svg topographic map for your next design</h3>
         <div className=" my-20 ">
 
           <ChartSettings />
