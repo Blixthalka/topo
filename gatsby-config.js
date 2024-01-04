@@ -10,11 +10,13 @@
 module.exports = {
   siteMetadata: {
     title: `Topography svg generation`,
-    description: `Generate a topographic map for your next design!    `,
+    description: `Generate a free topographic map for your next design!    `,
     author: `Emil`,
-    siteUrl: `https://gatsbystarterdefaultsource.gatsbyjs.io/`,
+    siteUrl: `https://topography.blixthalka.com`,
   },
   plugins: [
+    `gatsby-plugin-sitemap`,
+    `gatsby-plugin-robots-txt`,
     'gatsby-plugin-postcss',
     `gatsby-plugin-image`,
     {
@@ -25,8 +27,30 @@ module.exports = {
       },
     },
     `gatsby-transformer-sharp`,
+    {
+      resolve: `gatsby-transformer-remark`,
+      options: {
+        postCssPlugins: [
+          require("tailwindcss"),
+          require("./tailwind.config.js"), // Optional: Load custom Tailwind CSS configuration
+        ],
+        plugins: [
+          {
+            resolve: `gatsby-remark-images`
+          },
+        ],
+      },
+    },
+    `gatsby-plugin-sass`,
     `gatsby-plugin-sharp`,
     `gatsby-plugin-react-svg`,
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `blog`,
+        path: `${__dirname}/src/blog/`,
+      },
+    },
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
