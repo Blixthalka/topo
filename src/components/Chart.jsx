@@ -4,7 +4,8 @@ import { select } from 'd3-selection';
 import { createNoise3D } from 'simplex-noise';
 import simplify from 'simplify-js'
 import { polygon, bboxClip } from "@turf/turf";
-import { ArrowPathIcon, ClipboardIcon, ArrowDownOnSquareIcon } from '@heroicons/react/24/outline'
+import { RotateCwIcon, ClipboardIcon, DownloadIcon } from 'lucide-react'
+
 import IconButton from "./IconButton";
 
 const { mapRange, linspace } = require('canvas-sketch-util/math');
@@ -254,7 +255,7 @@ const Chart = ({ className, strokeWidth = 3, lines = 20, strokeColor = '#000000'
                 <IconButton
                     className=""
                     onClick={(e) => setSeed(Math.floor(Math.random() * 2000))}
-                    Icon={ArrowPathIcon}
+                    Icon={RotateCwIcon}
                 >Regenerate</IconButton>
                 <IconButton
                     className=""
@@ -266,7 +267,7 @@ const Chart = ({ className, strokeWidth = 3, lines = 20, strokeColor = '#000000'
                 <IconButton
                     className="bg-green-600 border-green-600 hover:border-green-700 text-white hover:bg-green-700 hover:text-white"
                     onClick={(e) => download_file("topo.svg")}
-                    Icon={ArrowDownOnSquareIcon}
+                    Icon={DownloadIcon}
                 >
                     Download
                 </IconButton>

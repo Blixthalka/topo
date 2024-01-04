@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import Chart from "../components/Chart";
-import { ArrowPathIcon, ClipboardIcon, ArrowDownOnSquareIcon } from '@heroicons/react/24/outline'
-import IconButton from "./IconButton";
 import SelectButtons from "./SelectButtons";
 import ColorPicker from "./ColorPicker";
 

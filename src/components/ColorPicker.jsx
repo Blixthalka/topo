@@ -1,7 +1,7 @@
 
 import React from "react";
 import IconButton from "./IconButton";
-import { HashtagIcon } from "@heroicons/react/24/outline";
+import { HashIcon } from "lucide-react";
 
 const ColorPicker = ({ colors, label, selected, onValueChange, ...props }) => {
     return (
@@ -19,7 +19,7 @@ const ColorPicker = ({ colors, label, selected, onValueChange, ...props }) => {
 
                 <div className="flex items-center border rounded text-gray-500 text-sm mt-2">
                     <div className="px-1 h-full bg-gray-100 rounded-l grid items-center">
-                        <HashtagIcon className="w-4 h-4 " />
+                        <HashIcon className="w-4 h-4 " />
                     </div>
                     <input
                         className="h-full rounded-r rounded-l-none  w-20  px-1"

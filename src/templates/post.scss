@@ -1,15 +1,3 @@
-.lunk {
-    @apply cursor-pointer;
-}
-.forward {
-    @apply border my-10 bg-[#040819] relative;
-    svg {
-        @apply stroke-gray-500 group-hover:stroke-gray-200;
-    }
-    span {
-        @apply text-white text-2xl absolute top-1/2 text-center w-full;
-    }
-}
 
 .inner-blog {
 
