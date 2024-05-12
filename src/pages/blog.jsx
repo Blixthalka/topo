@@ -33,7 +33,7 @@ export const pageQuery = graphql`
     blog: allMarkdownRemark {
       posts: nodes {
         frontmatter {
-          date(fromNow: true)
+          date(formatString: "DD MMMM, YYYY")
           title
           subtitle
         }
