@@ -12,16 +12,12 @@ const ChartSettings = () => {
     return (
         <div className="p-5 border rounded grid  gap-5 bg-white">
             <Chart
-
                 strokeWidth={strokeWidth}
                 lines={lines}
                 strokeColor={'#' + strokeColor}
                 className="" />
 
-                {/* <input className="border" type="number" value={seed} onChange={(e) => setSeed(parseInt(e.target.value))}></input> */}
-
                 <div className="grid md:grid-cols-2 gap-5 flex-wrap">
-
 
                     <SelectButtons
                         label="Stroke Width"

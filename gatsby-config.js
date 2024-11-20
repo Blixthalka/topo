@@ -10,8 +10,8 @@
 module.exports = {
   siteMetadata: {
     title: `Topography SVG Generator`,
-    description: `Generate a free topographic map for your next design!    `,
-    author: `Emil`,
+    description: `Generate a free topographic map for your next design!`,
+    author: `Blixthalka`,
     siteUrl: `https://topography.blixthalka.com`,
   },
   plugins: [
@@ -27,30 +27,9 @@ module.exports = {
       },
     },
     `gatsby-transformer-sharp`,
-    {
-      resolve: `gatsby-transformer-remark`,
-      options: {
-        postCssPlugins: [
-          require("tailwindcss"),
-          require("./tailwind.config.js"), // Optional: Load custom Tailwind CSS configuration
-        ],
-        plugins: [
-          {
-            resolve: `gatsby-remark-images`
-          },
-        ],
-      },
-    },
     `gatsby-plugin-sass`,
     `gatsby-plugin-sharp`,
     `gatsby-plugin-react-svg`,
-    {
-      resolve: `gatsby-source-filesystem`,
-      options: {
-        name: `blog`,
-        path: `${__dirname}/src/blog/`,
-      },
-    },
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
@@ -62,7 +41,7 @@ module.exports = {
         // https://css-tricks.com/meta-theme-color-and-trickery/
         // theme_color: `#663399`,
         display: `minimal-ui`,
-        icon: `src/images/logo.png`, // This path is relative to the root of the site.
+        icon: `src/images/logo3.png`, // This path is relative to the root of the site.
       },
     },
   ],
