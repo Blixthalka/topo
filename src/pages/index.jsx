@@ -7,8 +7,10 @@ const IndexPage = () => {
   return (
     <Layout>
       <div className="my-20">
-        <h1 className="text-3xl font-medium">Topography SVG Generator</h1>
-        <h3 className="text-gray-500 mt-3 text-lg">
+        <h1 className="text-3xl font-medium text-center">
+          Topography SVG Generator
+        </h1>
+        <h3 className="text-gray-500 mt-3 text-lg text-center">
           Generate a free svg topographic map for your next design!
         </h3>
       </div>
