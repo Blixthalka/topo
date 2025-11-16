@@ -72,7 +72,7 @@ const remove_duplicate_lines = (lines) => {
                 }
             }
         }
-    } while (taken_lines_start != taken_lines.length)
+    } while (taken_lines_start !== taken_lines.length)
     console.log("first", lines.length, " second", taken_lines.length)
 
     return taken_lines;
