@@ -10,7 +10,7 @@
 module.exports = {
   siteMetadata: {
     title: `Topography SVG Generator`,
-    description: `Generate a free topographic map for your next design!`,
+    description: `Topography SVG Generator - generate a free topographic map for your next design!`,
     author: `Blixthalka`,
     siteUrl: `https://topography.blixthalka.com`,
   },

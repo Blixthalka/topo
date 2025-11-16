@@ -10,7 +10,7 @@ const ChartSettings = () => {
     const [strokeColor, setStrokeColor] = useState('71717a');
 
     return (
-        <div className="p-5 border rounded grid  gap-5 bg-white">
+        <div className="p-5 border shadow-sm rounded grid  gap-5 bg-white">
             <Chart
                 strokeWidth={strokeWidth}
                 lines={lines}
