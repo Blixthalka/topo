@@ -57,7 +57,7 @@ const IndexPage = () => {
         </div>
 
         <div className="mt-6 flex flex-col items-center">
-          <p className="text-gray-500 text-sm mb-3">One-time purchase of 99$ · Instant download</p>
+          <p className="text-gray-500 text-sm mb-3">One-time purchase of 49$ · Instant download</p>
           <a
             href="https://blixthalka.gumroad.com/l/high-fidelity-topographic-svg-pack"
             target="_blank"
