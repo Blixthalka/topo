@@ -1,22 +1,32 @@
 import React, { useEffect, useRef, useState } from "react"
-import { line as d3Line, curveCatmullRom } from "d3-shape"
+import { line as d3Line, curveBasis } from "d3-shape"
 import { select } from "d3-selection"
 import { createNoise3D } from "simplex-noise"
 import { RotateCwIcon, ClipboardIcon, DownloadIcon } from "lucide-react"
 import IconButton from "./IconButton"
 
+// Fast high-quality pseudo-random generator
+function mulberry32(seed) {
+  return function () {
+    let t = (seed += 0x6d2b79f5)
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
 const FlowChart = ({
-  density = 250,
+  flowMode = "ribbons", // 'ribbons' | 'swirls'
+  density = 55,
+  turbulence = 40,
+  stepLength = 3,
   strokeWidth = 1.5,
   strokeColor = "#0f766e",
-  scale = 0.003,
-  stepLength = 6,
-  steps = 55,
   className = "",
 }) => {
   const ref = useRef()
   const wrapperRef = useRef()
-  const [seed, setSeed] = useState(42)
+  const [seed, setSeed] = useState(101)
 
   const sizeX = 600
   const sizeY = 400
@@ -24,39 +34,89 @@ const FlowChart = ({
   useEffect(() => {
     select(ref.current).selectAll("*").remove()
 
-    const simplex = createNoise3D(() => {
-      let s = seed
-      return () => {
-        s = Math.sin(s) * 10000
-        return s - Math.floor(s)
-      }
-    })
+    const rng = mulberry32(seed)
+    const simplex = createNoise3D(rng)
 
     const lineGenerator = d3Line()
       .x((d) => d[0])
       .y((d) => d[1])
-      .curve(curveCatmullRom)
+      .curve(curveBasis)
 
     const paths = []
-    const margin = 20
 
-    // Seed points across canvas
-    for (let i = 0; i < density; i++) {
-      let x = margin + Math.random() * (sizeX - margin * 2)
-      let y = margin + Math.random() * (sizeY - margin * 2)
-      const points = [[x, y]]
+    if (flowMode === "ribbons") {
+      // Continuous sweeping streamlines from boundary across the canvas
+      const rows = density
+      const scale = 0.002 + (turbulence / 100) * 0.003
+      const curlAngle = (turbulence / 100) * Math.PI * 1.6
+      const maxSteps = 240
 
-      for (let s = 0; s < steps; s++) {
-        const angle = simplex(x * scale, y * scale, seed * 0.1) * Math.PI * 4
-        x += Math.cos(angle) * stepLength
-        y += Math.sin(angle) * stepLength
+      for (let i = 0; i < rows; i++) {
+        let x = -20
+        let y = (i / rows) * sizeY + (rng() - 0.5) * (sizeY / rows) * 0.9
+        const pts = [[x, y]]
 
-        if (x < 0 || x > sizeX || y < 0 || y > sizeY) break
-        points.push([x, y])
+        for (let s = 0; s < maxSteps; s++) {
+          const n = simplex(x * scale, y * scale, 0.25)
+          const angle = n * curlAngle
+          x += Math.cos(angle) * stepLength
+          y += Math.sin(angle) * stepLength
+
+          if (x > sizeX + 25 || y < -40 || y > sizeY + 40) break
+          pts.push([x, y])
+        }
+
+        if (pts.length > 8) {
+          paths.push(pts)
+        }
       }
+    } else {
+      // Momentum-based bidirectional vortex streamlines
+      const count = density * 3.5
+      const scale = 0.0025 + (turbulence / 100) * 0.003
+      const curlMult = 1.0 + (turbulence / 100) * 1.5
+      const halfSteps = 45
 
-      if (points.length > 2) {
-        paths.push(points)
+      for (let i = 0; i < count; i++) {
+        const startX = 20 + rng() * (sizeX - 40)
+        const startY = 20 + rng() * (sizeY - 40)
+
+        // Trace forward with momentum
+        const fwd = []
+        let x = startX
+        let y = startY
+        let vx = 0
+        let vy = 0
+        for (let s = 0; s < halfSteps; s++) {
+          const angle = simplex(x * scale, y * scale, 0.4) * Math.PI * 2 * curlMult
+          vx = vx * 0.72 + Math.cos(angle) * stepLength * 0.7
+          vy = vy * 0.72 + Math.sin(angle) * stepLength * 0.7
+          x += vx
+          y += vy
+          if (x < 5 || x > sizeX - 5 || y < 5 || y > sizeY - 5) break
+          fwd.push([x, y])
+        }
+
+        // Trace backward with momentum
+        const bwd = []
+        x = startX
+        y = startY
+        vx = 0
+        vy = 0
+        for (let s = 0; s < halfSteps; s++) {
+          const angle = simplex(x * scale, y * scale, 0.4) * Math.PI * 2 * curlMult + Math.PI
+          vx = vx * 0.72 + Math.cos(angle) * stepLength * 0.7
+          vy = vy * 0.72 + Math.sin(angle) * stepLength * 0.7
+          x += vx
+          y += vy
+          if (x < 5 || x > sizeX - 5 || y < 5 || y > sizeY - 5) break
+          bwd.push([x, y])
+        }
+
+        const full = [...bwd.reverse(), [startX, startY], ...fwd]
+        if (full.length > 8) {
+          paths.push(full)
+        }
       }
     }
 
@@ -69,9 +129,9 @@ const FlowChart = ({
         .attr("stroke-width", strokeWidth)
         .attr("fill", "none")
         .attr("stroke-linecap", "round")
-        .attr("stroke-opacity", 0.85)
+        .attr("stroke-opacity", flowMode === "ribbons" ? 0.85 : 0.75)
     })
-  }, [seed, density, strokeWidth, strokeColor, scale, stepLength, steps])
+  }, [seed, flowMode, density, turbulence, stepLength, strokeWidth, strokeColor])
 
   const copy = () => {
     const contents = select(wrapperRef.current).html()
