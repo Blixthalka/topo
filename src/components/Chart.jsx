@@ -265,7 +265,7 @@ const Chart = ({ className, strokeWidth = 3, lines = 20, strokeColor = '#000000'
                     Copy
                 </IconButton>
                 <IconButton
-                    className="bg-green-600 border-green-600 hover:border-green-700 text-white hover:bg-green-700 hover:text-white"
+                    className="bg-green-600 border-green-600 hover:border-green-700 !text-white dark:!text-white hover:bg-green-700"
                     onClick={(e) => download_file("topo.svg")}
                     Icon={DownloadIcon}
                 >

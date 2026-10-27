@@ -109,21 +109,21 @@ const PillsChart = ({
 
       <div className="flex gap-2 flex-wrap items-center mt-5">
         <IconButton
-          icon={<RotateCwIcon className="w-4 h-4" />}
-          label="Randomize"
           onClick={() => setSeed(Math.floor(Math.random() * 10000))}
-        />
+          Icon={RotateCwIcon}
+        >
+          Regenerate
+        </IconButton>
+        <IconButton onClick={copy} Icon={ClipboardIcon}>
+          Copy
+        </IconButton>
         <IconButton
-          icon={<ClipboardIcon className="w-4 h-4" />}
-          label="Copy SVG"
-          onClick={copy}
-        />
-        <IconButton
-          icon={<DownloadIcon className="w-4 h-4" />}
-          label="Download SVG"
-          className="bg-green-600 border-green-600 hover:bg-green-700 text-white"
+          className="bg-green-600 border-green-600 hover:border-green-700 !text-white dark:!text-white hover:bg-green-700"
           onClick={() => downloadFile("pills.svg")}
-        />
+          Icon={DownloadIcon}
+        >
+          Download
+        </IconButton>
       </div>
     </div>
   )

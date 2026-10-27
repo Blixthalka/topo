@@ -136,7 +136,7 @@ const RidgeChart = ({
           Copy
         </IconButton>
         <IconButton
-          className="bg-green-600 border-green-600 hover:border-green-700 text-white hover:bg-green-700 hover:text-white"
+          className="bg-green-600 border-green-600 hover:border-green-700 !text-white dark:!text-white hover:bg-green-700"
           onClick={() => downloadFile("ridges.svg")}
           Icon={DownloadIcon}
         >

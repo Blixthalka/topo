@@ -104,8 +104,8 @@ const HalftoneChart = ({
           Copy
         </IconButton>
         <IconButton
-          className="bg-green-600 border-green-600 hover:border-green-700 text-white hover:bg-green-700 hover:text-white"
-          onClick={() => downloadFile("halftone.svg")}
+          className="bg-green-600 border-green-600 hover:border-green-700 !text-white dark:!text-white hover:bg-green-700"
+          onClick={() => downloadFile("dots.svg")}
           Icon={DownloadIcon}
         >
           Download
