@@ -14,7 +14,7 @@ import sample6 from "../images/sample_6.png"
 const IndexPage = () => {
   return (
     <Layout>
-      <div className="mb-8 mt-20 ">
+      <div className="mb-8 mt-6">
         <div className="flex justify-center mb-2">
           <a
             href="https://blixthalka.gumroad.com/l/high-fidelity-topographic-svg-pack"
@@ -85,6 +85,6 @@ const IndexPage = () => {
   )
 }
 
-export const Head = () => <Seo />
+export const Head = () => <Seo pathname="/" />
 
 export default IndexPage
