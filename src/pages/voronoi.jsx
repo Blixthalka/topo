@@ -18,16 +18,6 @@ const VoronoiPage = () => {
       <div className="my-8">
         <VoronoiSettings />
       </div>
-
-      <div className="text-sm text-gray-500 dark:text-zinc-400 text-center my-20">
-        Created by{" "}
-        <a
-          className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
-          href="https://x.com/blixthalka"
-        >
-          @blixthalka
-        </a>
-      </div>
     </Layout>
   )
 }
