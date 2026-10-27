@@ -1,12 +1,10 @@
 import React from "react"
 import { Link } from "gatsby"
-import { Mountain, Waves, Activity, Sparkles, Shapes, Grid } from "lucide-react"
+import { Mountain, Activity, Shapes, Grid } from "lucide-react"
 
 const GENERATORS = [
   { name: "Topography", path: "/", icon: Mountain },
-  { name: "Flow Fields", path: "/flow-fields/", icon: Waves },
   { name: "Ridge Lines", path: "/ridges/", icon: Activity },
-  { name: "Guilloché", path: "/guilloche/", icon: Sparkles },
   { name: "Voronoi", path: "/voronoi/", icon: Shapes },
   { name: "Halftone", path: "/halftone/", icon: Grid },
 ]

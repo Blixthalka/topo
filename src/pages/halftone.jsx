@@ -80,10 +80,6 @@ const HalftonePage = () => {
                     Topography
                   </Link>
                   ,{" "}
-                  <Link to="/flow-fields/" className="text-teal-700 underline font-medium">
-                    Flow Fields
-                  </Link>
-                  ,{" "}
                   <Link to="/ridges/" className="text-teal-700 underline font-medium">
                     Ridge Lines
                   </Link>

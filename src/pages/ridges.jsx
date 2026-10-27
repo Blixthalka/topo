@@ -80,8 +80,8 @@ const RidgesPage = () => {
                     Topography Generator
                   </Link>{" "}
                   and{" "}
-                  <Link to="/flow-fields/" className="text-teal-700 underline font-medium">
-                    Flow Field Generator
+                  <Link to="/voronoi/" className="text-teal-700 underline font-medium">
+                    Voronoi Generator
                   </Link>
                   .
                 </p>

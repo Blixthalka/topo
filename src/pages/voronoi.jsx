@@ -84,8 +84,8 @@ const VoronoiPage = () => {
                     Ridge Lines
                   </Link>
                   , and{" "}
-                  <Link to="/guilloche/" className="text-teal-700 underline font-medium">
-                    Guilloché Generator
+                  <Link to="/halftone/" className="text-teal-700 underline font-medium">
+                    Halftone Generator
                   </Link>
                   .
                 </p>
