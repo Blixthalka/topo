@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react"
 import { Link } from "gatsby"
-import { Mountain, Activity, Shapes, Grid, Sun, Moon, Menu, X } from "lucide-react"
+import { Sun, Moon, Menu, X } from "lucide-react"
 
 const GENERATORS = [
-  { name: "Topography", path: "/", icon: Mountain },
-  { name: "Ridge Lines", path: "/ridges/", icon: Activity },
-  { name: "Voronoi", path: "/voronoi/", icon: Shapes },
-  { name: "Halftone", path: "/halftone/", icon: Grid },
+  { name: "Topography", path: "/" },
+  { name: "Ridge Lines", path: "/ridges/" },
+  { name: "Voronoi", path: "/voronoi/" },
+  { name: "Halftone", path: "/halftone/" },
 ]
 
 const GeneratorNav = () => {
@@ -14,7 +14,6 @@ const GeneratorNav = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
-    // Check saved theme or system preference
     const savedTheme = localStorage.getItem("topo-theme")
     const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
     const initialDark = savedTheme ? savedTheme === "dark" : prefersDark
@@ -44,15 +43,14 @@ const GeneratorNav = () => {
       {/* Desktop Header */}
       <div className="hidden md:flex items-center justify-between gap-3">
         <nav aria-label="Generators" className="flex items-center gap-2">
-          {GENERATORS.map(({ name, path, icon: Icon }) => (
+          {GENERATORS.map(({ name, path }) => (
             <Link
               key={path}
               to={path}
               activeClassName="!bg-teal-700 !text-white !border-teal-700 shadow-sm"
               partiallyActive={path !== "/"}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium bg-white/80 dark:bg-zinc-900/80 hover:bg-white dark:hover:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-zinc-800 transition-all duration-150"
+              className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-white/80 dark:bg-zinc-900/80 hover:bg-white dark:hover:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-zinc-800 transition-all duration-150"
             >
-              <Icon className="w-3.5 h-3.5" />
               <span>{name}</span>
             </Link>
           ))}
@@ -105,16 +103,15 @@ const GeneratorNav = () => {
       {/* Mobile Dropdown Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden mt-3 p-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-lg space-y-1">
-          {GENERATORS.map(({ name, path, icon: Icon }) => (
+          {GENERATORS.map(({ name, path }) => (
             <Link
               key={path}
               to={path}
               onClick={() => setIsMobileMenuOpen(false)}
               activeClassName="!bg-teal-700 !text-white font-medium"
               partiallyActive={path !== "/"}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition"
+              className="flex items-center px-3.5 py-2 rounded-lg text-sm text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition"
             >
-              <Icon className="w-4 h-4" />
               <span>{name}</span>
             </Link>
           ))}
