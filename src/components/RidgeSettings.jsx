@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import RidgeChart from "./RidgeChart"
 import SelectButtons from "./SelectButtons"
 import ColorPicker from "./ColorPicker"
@@ -8,7 +8,23 @@ const RidgeSettings = () => {
   const [lines, setLines] = useState(30)
   const [amplitude, setAmplitude] = useState(55)
   const [roughness, setRoughness] = useState(3)
-  const [strokeColor, setStrokeColor] = useState("71717a")
+  const [customStrokeColor, setCustomStrokeColor] = useState(null)
+  const [isDark, setIsDark] = useState(false)
+
+  // Listen to global dark mode changes
+  useEffect(() => {
+    if (typeof document === "undefined") return
+    setIsDark(document.documentElement.classList.contains("dark"))
+
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"))
+    })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+    return () => observer.disconnect()
+  }, [])
+
+  // In dark mode default to white (#ffffff), in light mode default to black (#09090b)
+  const effectiveStrokeColor = customStrokeColor || (isDark ? "ffffff" : "09090b")
 
   return (
     <div className="p-5 border border-gray-200 dark:border-zinc-800 shadow-sm rounded grid gap-5 bg-white dark:bg-zinc-900">
@@ -17,7 +33,7 @@ const RidgeSettings = () => {
         amplitude={amplitude}
         roughness={roughness}
         strokeWidth={strokeWidth}
-        strokeColor={"#" + strokeColor}
+        strokeColor={"#" + effectiveStrokeColor}
         className=""
       />
 
@@ -52,8 +68,8 @@ const RidgeSettings = () => {
 
         <ColorPicker
           label="Stroke Color"
-          selected={strokeColor}
-          onValueChange={(c) => setStrokeColor(c)}
+          selected={effectiveStrokeColor}
+          onValueChange={(c) => setCustomStrokeColor(c)}
           className="md:col-span-2"
         />
       </div>

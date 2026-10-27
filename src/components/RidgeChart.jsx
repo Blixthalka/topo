@@ -21,7 +21,7 @@ const RidgeChart = ({
   const sizeX = 600
   const sizeY = 400
 
-  // Synchronize with document dark mode class
+  // Synchronize with document dark mode
   useEffect(() => {
     if (typeof document === "undefined") return
     setIsDark(document.documentElement.classList.contains("dark"))
@@ -47,24 +47,33 @@ const RidgeChart = ({
     const svg = select(ref.current)
     const bgColor = isDark ? "#18181b" : "#ffffff"
 
+    // 1. Full background rect so exported SVGs retain background and top sky matches
+    svg
+      .append("rect")
+      .attr("width", sizeX)
+      .attr("height", sizeY)
+      .attr("fill", bgColor)
+      .attr("rx", 4)
+
     const lineGenerator = d3Line()
       .x((d) => d[0])
       .y((d) => d[1])
       .curve(curveBasis)
 
-    const startY = 30
-    const endY = sizeY - 30
+    const startY = 35
+    const endY = sizeY - 35
     const lineSpacing = (endY - startY) / (lineCount - 1)
     const centerX = sizeX / 2
     const stepX = 5
     const noiseScale = 0.003 * roughness
-    const spread = 150
+    const spread = 145
 
     for (let i = 0; i < lineCount; i++) {
       const baseY = startY + i * lineSpacing
       const points = []
 
-      for (let x = 20; x <= sizeX - 20; x += stepX) {
+      // Full edge-to-edge calculation (0 to sizeX)
+      for (let x = 0; x <= sizeX; x += stepX) {
         const dist = Math.abs(x - centerX)
         const envelope = Math.exp(-Math.pow(dist / spread, 2))
 
@@ -76,18 +85,15 @@ const RidgeChart = ({
         points.push([x, peakY])
       }
 
-      const firstX = points[0][0]
-      const lastX = points[points.length - 1][0]
-      const closedPoints = [...points, [lastX, sizeY], [firstX, sizeY]]
+      // Seamless occlusion polygon across full bottom width
+      const closedPoints = [...points, [sizeX, sizeY], [0, sizeY]]
 
-      // Hidden line occlusion fill matching card background
       svg
         .append("path")
         .attr("d", lineGenerator(closedPoints))
         .attr("fill", bgColor)
         .attr("stroke", "none")
 
-      // Line stroke
       svg
         .append("path")
         .attr("d", lineGenerator(points))
@@ -118,7 +124,7 @@ const RidgeChart = ({
       <div ref={wrapperRef}>
         <svg
           ref={ref}
-          className={` ${className}`}
+          className={`w-full h-auto ${className}`}
           viewBox={`0 0 ${sizeX} ${sizeY}`}
         />
       </div>

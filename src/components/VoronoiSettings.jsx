@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import VoronoiChart from "./VoronoiChart"
 import SelectButtons from "./SelectButtons"
 import ColorPicker from "./ColorPicker"
@@ -8,7 +8,21 @@ const VoronoiSettings = () => {
   const [pointsCount, setPointsCount] = useState(50)
   const [mode, setMode] = useState("voronoi")
   const [relaxation, setRelaxation] = useState(2)
-  const [strokeColor, setStrokeColor] = useState("71717a")
+  const [customStrokeColor, setCustomStrokeColor] = useState(null)
+  const [isDark, setIsDark] = useState(false)
+
+  useEffect(() => {
+    if (typeof document === "undefined") return
+    setIsDark(document.documentElement.classList.contains("dark"))
+
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"))
+    })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+    return () => observer.disconnect()
+  }, [])
+
+  const effectiveStrokeColor = customStrokeColor || (isDark ? "cbd5e1" : "71717a")
 
   return (
     <div className="p-5 border border-gray-200 dark:border-zinc-800 shadow-sm rounded grid gap-5 bg-white dark:bg-zinc-900">
@@ -17,7 +31,7 @@ const VoronoiSettings = () => {
         mode={mode}
         relaxation={relaxation}
         strokeWidth={strokeWidth}
-        strokeColor={"#" + strokeColor}
+        strokeColor={"#" + effectiveStrokeColor}
         className=""
       />
 
@@ -56,8 +70,8 @@ const VoronoiSettings = () => {
 
         <ColorPicker
           label="Stroke Color"
-          selected={strokeColor}
-          onValueChange={(c) => setStrokeColor(c)}
+          selected={effectiveStrokeColor}
+          onValueChange={(c) => setCustomStrokeColor(c)}
           className="md:col-span-2"
         />
       </div>

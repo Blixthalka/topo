@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import HalftoneChart from "./HalftoneChart"
 import SelectButtons from "./SelectButtons"
 import ColorPicker from "./ColorPicker"
@@ -8,7 +8,21 @@ const HalftoneSettings = () => {
   const [maxSize, setMaxSize] = useState(6)
   const [patternType, setPatternType] = useState("noise")
   const [shapeType, setShapeType] = useState("circle")
-  const [strokeColor, setStrokeColor] = useState("71717a")
+  const [customStrokeColor, setCustomStrokeColor] = useState(null)
+  const [isDark, setIsDark] = useState(false)
+
+  useEffect(() => {
+    if (typeof document === "undefined") return
+    setIsDark(document.documentElement.classList.contains("dark"))
+
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"))
+    })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+    return () => observer.disconnect()
+  }, [])
+
+  const effectiveStrokeColor = customStrokeColor || (isDark ? "cbd5e1" : "71717a")
 
   return (
     <div className="p-5 border border-gray-200 dark:border-zinc-800 shadow-sm rounded grid gap-5 bg-white dark:bg-zinc-900">
@@ -17,7 +31,7 @@ const HalftoneSettings = () => {
         maxSize={maxSize}
         patternType={patternType}
         shapeType={shapeType}
-        dotColor={"#" + strokeColor}
+        dotColor={"#" + effectiveStrokeColor}
         className=""
       />
 
@@ -60,8 +74,8 @@ const HalftoneSettings = () => {
 
         <ColorPicker
           label="Stroke Color"
-          selected={strokeColor}
-          onValueChange={(c) => setStrokeColor(c)}
+          selected={effectiveStrokeColor}
+          onValueChange={(c) => setCustomStrokeColor(c)}
           className="md:col-span-2"
         />
       </div>
