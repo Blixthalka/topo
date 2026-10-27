@@ -8,10 +8,10 @@ const PillsPage = () => {
     <Layout>
       <div className="mb-8 mt-16 sm:mt-20 text-center">
         <h1 className="text-3xl font-medium text-gray-900 dark:text-zinc-100">
-          Pill Pattern SVG Generator
+          Vector Field & Pill Pattern SVG Generator
         </h1>
         <p className="text-gray-500 dark:text-zinc-400 mt-3 text-lg max-w-xl mx-auto">
-          Generate rotating pill and dash vector fields with uniform or dynamic flow waves.
+          Generate directional capsule vectors, dash matrices, and procedural flow fields with uniform or dynamic sizing.
         </p>
       </div>
 
@@ -24,8 +24,8 @@ const PillsPage = () => {
 
 export const Head = () => (
   <Seo
-    title="Pill Pattern SVG Generator - Directional Capsule & Dash Vector Field"
-    description="Generate free procedural pill and dash pattern SVGs. Customize grid density, uniform capsule sizing, wave flow, and instant SVG export."
+    title="Vector Field & Pill Pattern SVG Generator - Directional Flow & Dash Matrix"
+    description="Generate free procedural pill patterns, dash vector fields, and capsule matrices in SVG. Features uniform capsule sizing, wave flow orientation, and instant SVG export."
     pathname="/pills/"
   />
 )
