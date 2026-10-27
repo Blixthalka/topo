@@ -8,10 +8,10 @@ const HalftonePage = () => {
     <Layout>
       <div className="mb-8 mt-16 sm:mt-20 text-center">
         <h1 className="text-3xl font-medium text-gray-900 dark:text-zinc-100">
-          Vector Halftone & Dot Matrix SVG Generator
+          Dot Matrix & Halftone SVG Generator
         </h1>
         <p className="text-gray-500 dark:text-zinc-400 mt-3 text-lg max-w-xl mx-auto">
-          Generate modern procedural vector dot grids, wave halftones, and matrix patterns.
+          Generate procedural vector dot grids, wave halftones, and organic matrix patterns.
         </p>
       </div>
 
@@ -24,8 +24,8 @@ const HalftonePage = () => {
 
 export const Head = () => (
   <Seo
-    title="Vector Halftone SVG Generator - Free Dot Matrix & Wave Patterns"
-    description="Generate customizable procedural vector halftone grids, dot matrix waves, and crosshair patterns in SVG. Free online generator."
+    title="Dot Matrix & Halftone SVG Generator - Procedural Vector Dot Grids"
+    description="Generate customizable procedural vector dot matrix grids, wave halftones, and organic patterns in SVG. Free online generator."
     pathname="/halftone/"
   />
 )

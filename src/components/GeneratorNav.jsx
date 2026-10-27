@@ -6,7 +6,8 @@ const GENERATORS = [
   { name: "Topography", path: "/" },
   { name: "Ridge Lines", path: "/ridges/" },
   { name: "Voronoi", path: "/voronoi/" },
-  { name: "Halftone", path: "/halftone/" },
+  { name: "Dots", path: "/dots/" },
+  { name: "Pills", path: "/pills/" },
 ]
 
 const GeneratorNav = () => {

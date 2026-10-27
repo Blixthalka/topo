@@ -7,7 +7,6 @@ const HalftoneSettings = () => {
   const [columns, setColumns] = useState(36)
   const [maxSize, setMaxSize] = useState(6)
   const [patternType, setPatternType] = useState("noise")
-  const [shapeType, setShapeType] = useState("circle")
   const [customStrokeColor, setCustomStrokeColor] = useState(null)
   const [isDark, setIsDark] = useState(false)
 
@@ -30,23 +29,11 @@ const HalftoneSettings = () => {
         columns={columns}
         maxSize={maxSize}
         patternType={patternType}
-        shapeType={shapeType}
         dotColor={"#" + effectiveStrokeColor}
         className=""
       />
 
       <div className="grid md:grid-cols-2 gap-5 flex-wrap">
-        <SelectButtons
-          label="Shape"
-          selected={shapeType}
-          onValueChange={(v) => setShapeType(v)}
-          values={[
-            { label: "Dots", value: "circle" },
-            { label: "Crosses", value: "cross" },
-            { label: "Pills", value: "dash" },
-          ]}
-        />
-
         <SelectButtons
           label="Wave"
           selected={patternType}
@@ -59,21 +46,21 @@ const HalftoneSettings = () => {
         />
 
         <SelectButtons
-          label="Grid Density"
-          selected={columns}
-          onValueChange={(v) => setColumns(v)}
-          values={[20, 28, 36, 44, 52]}
-        />
-
-        <SelectButtons
           label="Dot Size"
           selected={maxSize}
           onValueChange={(v) => setMaxSize(v)}
           values={[4, 6, 8, 10, 12]}
         />
 
+        <SelectButtons
+          label="Grid Density"
+          selected={columns}
+          onValueChange={(v) => setColumns(v)}
+          values={[20, 28, 36, 44, 52]}
+        />
+
         <ColorPicker
-          label="Stroke Color"
+          label="Dot Color"
           selected={effectiveStrokeColor}
           onValueChange={(c) => setCustomStrokeColor(c)}
           className="md:col-span-2"
