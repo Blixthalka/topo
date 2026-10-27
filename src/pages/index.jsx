@@ -14,7 +14,7 @@ import sample6 from "../images/sample_6.png"
 const IndexPage = () => {
   return (
     <Layout>
-      <div className="mb-8 mt-6">
+      <div className="mb-8 mt-16 sm:mt-20">
         <div className="flex justify-center mb-2">
           <a
             href="https://blixthalka.gumroad.com/l/high-fidelity-topographic-svg-pack"

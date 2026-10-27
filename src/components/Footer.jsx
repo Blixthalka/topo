@@ -3,7 +3,7 @@ import { ArrowUpRight } from "lucide-react"
 
 const Footer = () => {
   return (
-    <footer className="my-16 text-center select-none">
+    <footer className="my-16 sm:my-20 text-center select-none">
       <p className="text-xs font-mono text-gray-400 dark:text-neutral-500">
         topo · by{" "}
         <a

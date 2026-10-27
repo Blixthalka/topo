@@ -6,7 +6,7 @@ import RidgeSettings from "../components/RidgeSettings"
 const RidgesPage = () => {
   return (
     <Layout>
-      <div className="mb-8 mt-6 text-center">
+      <div className="mb-8 mt-16 sm:mt-20 text-center">
         <h1 className="text-3xl font-medium text-gray-900 dark:text-zinc-100">
           Ridge Line Plot SVG Generator
         </h1>
