@@ -61,7 +61,6 @@ const HalftoneSettings = () => {
         <ColorPicker
           label="Stroke Color"
           selected={strokeColor}
-          colors={["71717a", "000000", "3730a3", "60a5fa", "059669"]}
           onValueChange={(c) => setStrokeColor(c)}
           className="md:col-span-2"
         />

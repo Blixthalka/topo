@@ -16,9 +16,22 @@ const RidgeChart = ({
   const ref = useRef()
   const wrapperRef = useRef()
   const [seed, setSeed] = useState(101)
+  const [isDark, setIsDark] = useState(false)
 
   const sizeX = 600
   const sizeY = 400
+
+  // Synchronize with document dark mode class
+  useEffect(() => {
+    if (typeof document === "undefined") return
+    setIsDark(document.documentElement.classList.contains("dark"))
+
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"))
+    })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     select(ref.current).selectAll("*").remove()
@@ -32,7 +45,7 @@ const RidgeChart = ({
     })
 
     const svg = select(ref.current)
-    const bgColor = "#ffffff"
+    const bgColor = isDark ? "#18181b" : "#ffffff"
 
     const lineGenerator = d3Line()
       .x((d) => d[0])
@@ -67,7 +80,7 @@ const RidgeChart = ({
       const lastX = points[points.length - 1][0]
       const closedPoints = [...points, [lastX, sizeY], [firstX, sizeY]]
 
-      // Hidden line occlusion fill
+      // Hidden line occlusion fill matching card background
       svg
         .append("path")
         .attr("d", lineGenerator(closedPoints))
@@ -83,7 +96,7 @@ const RidgeChart = ({
         .attr("fill", "none")
         .attr("stroke-linecap", "round")
     }
-  }, [seed, lineCount, amplitude, roughness, strokeWidth, strokeColor])
+  }, [seed, lineCount, amplitude, roughness, strokeWidth, strokeColor, isDark])
 
   const copy = () => {
     const contents = select(wrapperRef.current).html()
