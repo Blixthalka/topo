@@ -1,15 +1,11 @@
 import React, { useEffect, useRef, useState } from "react"
 import { Delaunay } from "d3-delaunay"
-import { polygonCentroid } from "d3-polygon"
 import { select } from "d3-selection"
 import { RotateCwIcon, ClipboardIcon, DownloadIcon } from "lucide-react"
 import IconButton from "./IconButton"
 
 const VoronoiChart = ({
   pointsCount = 60,
-  mode = "voronoi",
-  relaxation = 2,
-  showDots = false,
   strokeWidth = 2,
   strokeColor = "#71717a",
   className = "",
@@ -32,7 +28,7 @@ const VoronoiChart = ({
     }
 
     const padding = 10
-    let points = []
+    const points = []
     for (let i = 0; i < pointsCount; i++) {
       points.push([
         padding + pseudoRandom() * (sizeX - padding * 2),
@@ -40,56 +36,17 @@ const VoronoiChart = ({
       ])
     }
 
-    for (let r = 0; r < relaxation; r++) {
-      const del = Delaunay.from(points)
-      const vor = del.voronoi([0, 0, sizeX, sizeY])
-      const relaxed = []
-      for (let i = 0; i < points.length; i++) {
-        const poly = vor.cellPolygon(i)
-        if (poly && poly.length > 2) {
-          relaxed.push(polygonCentroid(poly))
-        } else {
-          relaxed.push(points[i])
-        }
-      }
-      points = relaxed
-    }
-
     const delaunay = Delaunay.from(points)
     const voronoi = delaunay.voronoi([0, 0, sizeX, sizeY])
 
-    if (mode === "delaunay" || mode === "both") {
-      svg
-        .append("path")
-        .attr("d", delaunay.render())
-        .attr("stroke", mode === "both" ? "#94a3b8" : strokeColor)
-        .attr("stroke-width", mode === "both" ? 1 : strokeWidth)
-        .attr("stroke-dasharray", mode === "both" ? "3,3" : "none")
-        .attr("fill", "none")
-        .attr("stroke-opacity", mode === "both" ? 0.6 : 1)
-    }
-
-    if (mode === "voronoi" || mode === "both") {
-      svg
-        .append("path")
-        .attr("d", voronoi.render())
-        .attr("stroke", strokeColor)
-        .attr("stroke-width", strokeWidth)
-        .attr("fill", "none")
-        .attr("stroke-linejoin", "round")
-    }
-
-    if (showDots) {
-      points.forEach(([x, y]) => {
-        svg
-          .append("circle")
-          .attr("cx", x)
-          .attr("cy", y)
-          .attr("r", strokeWidth * 1.5)
-          .attr("fill", strokeColor)
-      })
-    }
-  }, [seed, pointsCount, mode, relaxation, showDots, strokeWidth, strokeColor])
+    svg
+      .append("path")
+      .attr("d", voronoi.render())
+      .attr("stroke", strokeColor)
+      .attr("stroke-width", strokeWidth)
+      .attr("fill", "none")
+      .attr("stroke-linejoin", "round")
+  }, [seed, pointsCount, strokeWidth, strokeColor])
 
   const copy = () => {
     const contents = select(wrapperRef.current).html()
