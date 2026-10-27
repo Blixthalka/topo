@@ -11,7 +11,7 @@ const VoronoiSettings = () => {
   const [strokeColor, setStrokeColor] = useState("71717a")
 
   return (
-    <div className="p-5 border shadow-sm rounded grid gap-5 bg-white">
+    <div className="p-5 border border-gray-200 dark:border-zinc-800 shadow-sm rounded grid gap-5 bg-white dark:bg-zinc-900">
       <VoronoiChart
         pointsCount={pointsCount}
         mode={mode}
