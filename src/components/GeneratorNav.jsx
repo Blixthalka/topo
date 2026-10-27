@@ -39,6 +39,36 @@ const GeneratorNav = () => {
     }
   }
 
+  const checkIsActive = (href, location) => {
+    const current = (location?.pathname || "").replace(/\/+$/, "") || "/"
+    const target = href.replace(/\/+$/, "") || "/"
+    if (target === "/") return current === "/"
+    if (target === "/dots") return current === "/dots" || current === "/halftone"
+    return current === target || current.startsWith(target + "/")
+  }
+
+  const getDesktopLinkProps = ({ href, location }) => {
+    const isActive = checkIsActive(href, location)
+    return {
+      className: `inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${
+        isActive
+          ? "bg-gray-900 text-white border-gray-900 dark:bg-zinc-100 dark:text-zinc-900 dark:border-zinc-100 shadow-sm"
+          : "bg-white/80 dark:bg-zinc-900/80 hover:bg-white dark:hover:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white border-gray-200 dark:border-zinc-800"
+      }`,
+    }
+  }
+
+  const getMobileLinkProps = ({ href, location }) => {
+    const isActive = checkIsActive(href, location)
+    return {
+      className: `flex items-center px-3.5 py-2 rounded-lg text-sm transition ${
+        isActive
+          ? "bg-gray-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-medium"
+          : "text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800"
+      }`,
+    }
+  }
+
   return (
     <header className="w-full mb-6 pt-2 pb-1">
       {/* Desktop Header */}
@@ -48,9 +78,7 @@ const GeneratorNav = () => {
             <Link
               key={path}
               to={path}
-              activeClassName="!bg-teal-700 !text-white !border-teal-700 shadow-sm"
-              partiallyActive={path !== "/"}
-              className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-white/80 dark:bg-zinc-900/80 hover:bg-white dark:hover:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-zinc-800 transition-all duration-150"
+              getProps={getDesktopLinkProps}
             >
               <span>{name}</span>
             </Link>
@@ -74,7 +102,7 @@ const GeneratorNav = () => {
           to="/"
           className="font-semibold text-sm tracking-tight text-gray-900 dark:text-zinc-100 flex items-center gap-2"
         >
-          <div className="w-6 h-6 rounded-md bg-teal-700 text-white flex items-center justify-center font-bold text-xs">
+          <div className="w-6 h-6 rounded-md bg-gray-900 text-white dark:bg-zinc-100 dark:text-zinc-900 flex items-center justify-center font-bold text-xs">
             T
           </div>
           <span>Topo Suite</span>
@@ -109,9 +137,7 @@ const GeneratorNav = () => {
               key={path}
               to={path}
               onClick={() => setIsMobileMenuOpen(false)}
-              activeClassName="!bg-teal-700 !text-white font-medium"
-              partiallyActive={path !== "/"}
-              className="flex items-center px-3.5 py-2 rounded-lg text-sm text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition"
+              getProps={getMobileLinkProps}
             >
               <span>{name}</span>
             </Link>
