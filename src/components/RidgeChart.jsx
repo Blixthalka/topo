@@ -11,6 +11,7 @@ const RidgeChart = ({
   roughness = 3,
   strokeWidth = 2,
   strokeColor = "#71717a",
+  fillMode = "solid", // "solid" (occluded with theme bg) | "none" (transparent wireframe)
   className = "",
 }) => {
   const ref = useRef()
@@ -47,14 +48,6 @@ const RidgeChart = ({
     const svg = select(ref.current)
     const bgColor = isDark ? "#18181b" : "#ffffff"
 
-    // 1. Full background rect so exported SVGs retain background and top sky matches
-    svg
-      .append("rect")
-      .attr("width", sizeX)
-      .attr("height", sizeY)
-      .attr("fill", bgColor)
-      .attr("rx", 4)
-
     const lineGenerator = d3Line()
       .x((d) => d[0])
       .y((d) => d[1])
@@ -88,14 +81,15 @@ const RidgeChart = ({
         points.push([x, peakY])
       }
 
-      // Seamless occlusion polygon across full bottom width
-      const closedPoints = [...points, [sizeX, sizeY], [0, sizeY]]
-
-      svg
-        .append("path")
-        .attr("d", lineGenerator(closedPoints))
-        .attr("fill", bgColor)
-        .attr("stroke", "none")
+      // Occlusion polygon if fillMode is solid (SVG canvas remains 100% transparent)
+      if (fillMode !== "none") {
+        const closedPoints = [...points, [sizeX, sizeY], [0, sizeY]]
+        svg
+          .append("path")
+          .attr("d", lineGenerator(closedPoints))
+          .attr("fill", bgColor)
+          .attr("stroke", "none")
+      }
 
       svg
         .append("path")
@@ -105,7 +99,7 @@ const RidgeChart = ({
         .attr("fill", "none")
         .attr("stroke-linecap", "round")
     }
-  }, [seed, lineCount, amplitude, roughness, strokeWidth, strokeColor, isDark])
+  }, [seed, lineCount, amplitude, roughness, strokeWidth, strokeColor, isDark, fillMode])
 
   const copy = () => {
     const contents = select(wrapperRef.current).html()
