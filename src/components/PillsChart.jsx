@@ -89,12 +89,16 @@ const PillsChart = ({
 
   const downloadFile = (name = "pills.svg") => {
     const contents = select(wrapperRef.current).html()
-    const blob = new Blob([contents], { type: "image/svg+xml" })
+    const blob = new Blob([contents], { type: "image/svg+xml;charset=utf-8" })
     const dlink = document.createElement("a")
     dlink.download = name
     dlink.href = window.URL.createObjectURL(blob)
+    document.body.appendChild(dlink)
     dlink.click()
     dlink.remove()
+    setTimeout(() => {
+      window.URL.revokeObjectURL(dlink.href)
+    }, 1500)
   }
 
   return (
@@ -102,14 +106,15 @@ const PillsChart = ({
       <div ref={wrapperRef}>
         <svg
           ref={ref}
+          xmlns="http://www.w3.org/2000/svg"
           className={`w-full h-auto ${className}`}
           viewBox={`0 0 ${sizeX} ${sizeY}`}
         />
       </div>
 
-      <div className="flex gap-2 flex-wrap items-center mt-5">
+      <div className="grid sm:grid-cols-3 gap-5 mt-5">
         <IconButton
-          onClick={() => setSeed(Math.floor(Math.random() * 10000))}
+          onClick={() => setSeed(Math.floor(Math.random() * 2000))}
           Icon={RotateCwIcon}
         >
           Regenerate

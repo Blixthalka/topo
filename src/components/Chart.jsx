@@ -217,7 +217,7 @@ const Chart = ({ className, strokeWidth = 3, lines = 20, strokeColor = '#000000'
     }, [seed, strokeWidth, lines, strokeColor])
 
     function download_file(name) {
-        let mime_type = "text/plain";
+        let mime_type = "image/svg+xml;charset=utf-8";
 
         let contents = select(wrapperRef.current).html()
 
@@ -233,6 +233,7 @@ const Chart = ({ className, strokeWidth = 3, lines = 20, strokeColor = '#000000'
             }, 1500);
         };
 
+        document.body.appendChild(dlink);
         dlink.click();
         dlink.remove();
     }
@@ -247,6 +248,7 @@ const Chart = ({ className, strokeWidth = 3, lines = 20, strokeColor = '#000000'
             <div ref={wrapperRef}>
                 <svg
                     ref={ref}
+                    xmlns="http://www.w3.org/2000/svg"
                     className={` ${className}`}
                     viewBox={"0 0 " + sizeX + " " + sizeY} >
                 </svg>

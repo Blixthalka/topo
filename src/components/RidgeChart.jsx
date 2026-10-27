@@ -108,12 +108,16 @@ const RidgeChart = ({
 
   const downloadFile = (name = "ridges.svg") => {
     const contents = select(wrapperRef.current).html()
-    const blob = new Blob([contents], { type: "image/svg+xml" })
+    const blob = new Blob([contents], { type: "image/svg+xml;charset=utf-8" })
     const dlink = document.createElement("a")
     dlink.download = name
     dlink.href = window.URL.createObjectURL(blob)
+    document.body.appendChild(dlink)
     dlink.click()
     dlink.remove()
+    setTimeout(() => {
+      window.URL.revokeObjectURL(dlink.href)
+    }, 1500)
   }
 
   return (
@@ -121,6 +125,7 @@ const RidgeChart = ({
       <div ref={wrapperRef}>
         <svg
           ref={ref}
+          xmlns="http://www.w3.org/2000/svg"
           className={`w-full h-auto ${className}`}
           viewBox={`0 0 ${sizeX} ${sizeY}`}
         />
