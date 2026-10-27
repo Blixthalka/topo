@@ -5,12 +5,11 @@ import { RotateCwIcon, ClipboardIcon, DownloadIcon } from "lucide-react"
 import IconButton from "./IconButton"
 
 const HalftoneChart = ({
-  columns = 40,
+  columns = 36,
   maxSize = 6,
-  minSize = 1,
-  patternType = "noise", // 'noise' | 'ripple' | 'diagonal'
-  shapeType = "circle", // 'circle' | 'cross' | 'dash'
-  dotColor = "#0f766e",
+  patternType = "noise",
+  shapeType = "circle",
+  dotColor = "#71717a",
   className = "",
 }) => {
   const ref = useRef()
@@ -39,6 +38,7 @@ const HalftoneChart = ({
     const rows = Math.floor(availableHeight / step)
     const centerX = sizeX / 2
     const centerY = sizeY / 2
+    const minSize = 1
 
     for (let r = 0; r <= rows; r++) {
       for (let c = 0; c <= columns; c++) {
@@ -102,7 +102,7 @@ const HalftoneChart = ({
         }
       }
     }
-  }, [seed, columns, maxSize, minSize, patternType, shapeType, dotColor])
+  }, [seed, columns, maxSize, patternType, shapeType, dotColor])
 
   const copy = () => {
     const contents = select(wrapperRef.current).html()
@@ -121,30 +121,29 @@ const HalftoneChart = ({
 
   return (
     <div>
-      <div ref={wrapperRef} className="bg-white rounded overflow-hidden border border-gray-100">
+      <div ref={wrapperRef}>
         <svg
           ref={ref}
-          className={`w-full h-auto ${className}`}
+          className={` ${className}`}
           viewBox={`0 0 ${sizeX} ${sizeY}`}
-          xmlns="http://www.w3.org/2000/svg"
         />
       </div>
       <div className="grid sm:grid-cols-3 gap-5 mt-5">
         <IconButton
-          onClick={() => setSeed(Math.floor(Math.random() * 100000))}
+          onClick={() => setSeed(Math.floor(Math.random() * 2000))}
           Icon={RotateCwIcon}
         >
           Regenerate
         </IconButton>
         <IconButton onClick={copy} Icon={ClipboardIcon}>
-          Copy SVG
+          Copy
         </IconButton>
         <IconButton
-          className="bg-teal-700 border-teal-700 hover:border-teal-800 text-white hover:bg-teal-800 hover:text-white"
+          className="bg-green-600 border-green-600 hover:border-green-700 text-white hover:bg-green-700 hover:text-white"
           onClick={() => downloadFile("halftone.svg")}
           Icon={DownloadIcon}
         >
-          Download SVG
+          Download
         </IconButton>
       </div>
     </div>

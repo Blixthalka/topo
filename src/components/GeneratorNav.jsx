@@ -13,16 +13,16 @@ const GeneratorNav = () => {
   return (
     <nav
       aria-label="Generators"
-      className="w-full mb-8 pt-4 pb-2 border-b border-teal-100/60 overflow-x-auto scrollbar-none"
+      className="w-full mb-6 pt-2 pb-1 overflow-x-auto scrollbar-none"
     >
-      <div className="flex items-center justify-start sm:justify-center gap-2 min-w-max pb-2 px-1">
+      <div className="flex items-center justify-start sm:justify-center gap-2 min-w-max pb-1 px-1">
         {GENERATORS.map(({ name, path, icon: Icon }) => (
           <Link
             key={path}
             to={path}
             activeClassName="!bg-teal-700 !text-white !border-teal-700 shadow-sm"
             partiallyActive={path !== "/"}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-white/80 hover:bg-white text-gray-700 hover:text-gray-900 border border-teal-100 transition-all duration-150"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-white/80 hover:bg-white text-gray-700 hover:text-gray-900 border border-teal-100/80 transition-all duration-150"
           >
             <Icon className="w-3.5 h-3.5" />
             <span>{name}</span>

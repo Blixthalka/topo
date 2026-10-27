@@ -6,13 +6,11 @@ import { RotateCwIcon, ClipboardIcon, DownloadIcon } from "lucide-react"
 import IconButton from "./IconButton"
 
 const RidgeChart = ({
-  lineCount = 40,
-  amplitude = 55,
-  spread = 140,
-  roughness = 4,
-  strokeWidth = 1.5,
-  strokeColor = "#0f766e",
-  isDark = false,
+  lineCount = 30,
+  amplitude = 50,
+  roughness = 3,
+  strokeWidth = 2,
+  strokeColor = "#71717a",
   className = "",
 }) => {
   const ref = useRef()
@@ -20,7 +18,7 @@ const RidgeChart = ({
   const [seed, setSeed] = useState(101)
 
   const sizeX = 600
-  const sizeY = 440
+  const sizeY = 400
 
   useEffect(() => {
     select(ref.current).selectAll("*").remove()
@@ -34,58 +32,49 @@ const RidgeChart = ({
     })
 
     const svg = select(ref.current)
-    const bgColor = isDark ? "#090d16" : "#ffffff"
-
-    // Background rect
-    svg
-      .append("rect")
-      .attr("width", sizeX)
-      .attr("height", sizeY)
-      .attr("fill", bgColor)
+    const bgColor = "#ffffff"
 
     const lineGenerator = d3Line()
       .x((d) => d[0])
       .y((d) => d[1])
       .curve(curveBasis)
 
-    const startY = 40
-    const endY = sizeY - 40
+    const startY = 30
+    const endY = sizeY - 30
     const lineSpacing = (endY - startY) / (lineCount - 1)
     const centerX = sizeX / 2
     const stepX = 5
     const noiseScale = 0.003 * roughness
+    const spread = 150
 
     for (let i = 0; i < lineCount; i++) {
       const baseY = startY + i * lineSpacing
       const points = []
 
-      for (let x = 30; x <= sizeX - 30; x += stepX) {
-        // Gaussian envelope centered at centerX
+      for (let x = 20; x <= sizeX - 20; x += stepX) {
         const dist = Math.abs(x - centerX)
         const envelope = Math.exp(-Math.pow(dist / spread, 2))
 
-        // Multi-octave noise for rich mountain peaks
         const n1 = simplex(x * noiseScale, i * 0.18, seed)
-        const n2 = 0.4 * simplex(x * noiseScale * 2.5, i * 0.18, seed + 10)
+        const n2 = 0.35 * simplex(x * noiseScale * 2.5, i * 0.18, seed + 10)
         const rawNoise = Math.max(0, n1 + n2)
 
         const peakY = baseY - rawNoise * amplitude * envelope
         points.push([x, peakY])
       }
 
-      // Create closed path for occlusion (hidden line removal)
       const firstX = points[0][0]
       const lastX = points[points.length - 1][0]
       const closedPoints = [...points, [lastX, sizeY], [firstX, sizeY]]
 
-      // Fill polygon to mask lines beneath
+      // Hidden line occlusion fill
       svg
         .append("path")
         .attr("d", lineGenerator(closedPoints))
         .attr("fill", bgColor)
         .attr("stroke", "none")
 
-      // Draw top stroke
+      // Line stroke
       svg
         .append("path")
         .attr("d", lineGenerator(points))
@@ -94,14 +83,14 @@ const RidgeChart = ({
         .attr("fill", "none")
         .attr("stroke-linecap", "round")
     }
-  }, [seed, lineCount, amplitude, spread, roughness, strokeWidth, strokeColor, isDark])
+  }, [seed, lineCount, amplitude, roughness, strokeWidth, strokeColor])
 
   const copy = () => {
     const contents = select(wrapperRef.current).html()
     navigator.clipboard.writeText(contents)
   }
 
-  const downloadFile = (name = "ridge-lines.svg") => {
+  const downloadFile = (name = "ridges.svg") => {
     const contents = select(wrapperRef.current).html()
     const blob = new Blob([contents], { type: "image/svg+xml" })
     const dlink = document.createElement("a")
@@ -113,30 +102,29 @@ const RidgeChart = ({
 
   return (
     <div>
-      <div ref={wrapperRef} className="rounded overflow-hidden border border-gray-100 shadow-inner">
+      <div ref={wrapperRef}>
         <svg
           ref={ref}
-          className={`w-full h-auto ${className}`}
+          className={` ${className}`}
           viewBox={`0 0 ${sizeX} ${sizeY}`}
-          xmlns="http://www.w3.org/2000/svg"
         />
       </div>
       <div className="grid sm:grid-cols-3 gap-5 mt-5">
         <IconButton
-          onClick={() => setSeed(Math.floor(Math.random() * 100000))}
+          onClick={() => setSeed(Math.floor(Math.random() * 2000))}
           Icon={RotateCwIcon}
         >
           Regenerate
         </IconButton>
         <IconButton onClick={copy} Icon={ClipboardIcon}>
-          Copy SVG
+          Copy
         </IconButton>
         <IconButton
-          className="bg-teal-700 border-teal-700 hover:border-teal-800 text-white hover:bg-teal-800 hover:text-white"
-          onClick={() => downloadFile("ridge-lines.svg")}
+          className="bg-green-600 border-green-600 hover:border-green-700 text-white hover:bg-green-700 hover:text-white"
+          onClick={() => downloadFile("ridges.svg")}
           Icon={DownloadIcon}
         >
-          Download SVG
+          Download
         </IconButton>
       </div>
     </div>

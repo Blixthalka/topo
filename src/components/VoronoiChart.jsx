@@ -6,12 +6,12 @@ import { RotateCwIcon, ClipboardIcon, DownloadIcon } from "lucide-react"
 import IconButton from "./IconButton"
 
 const VoronoiChart = ({
-  pointsCount = 80,
-  mode = "voronoi", // 'voronoi' | 'delaunay' | 'both'
-  relaxation = 2, // 0 to 5 Lloyd relaxation steps
-  showDots = true,
-  strokeWidth = 1.5,
-  strokeColor = "#0f766e",
+  pointsCount = 60,
+  mode = "voronoi",
+  relaxation = 2,
+  showDots = false,
+  strokeWidth = 2,
+  strokeColor = "#71717a",
   className = "",
 }) => {
   const ref = useRef()
@@ -25,14 +25,12 @@ const VoronoiChart = ({
     select(ref.current).selectAll("*").remove()
     const svg = select(ref.current)
 
-    // Pseudo-random generator with seed
     let s = seed
     const pseudoRandom = () => {
       s = Math.sin(s) * 10000
       return s - Math.floor(s)
     }
 
-    // Generate initial random points with padding
     const padding = 10
     let points = []
     for (let i = 0; i < pointsCount; i++) {
@@ -42,7 +40,6 @@ const VoronoiChart = ({
       ])
     }
 
-    // Apply Lloyd's relaxation for organic, balanced distribution
     for (let r = 0; r < relaxation; r++) {
       const del = Delaunay.from(points)
       const vor = del.voronoi([0, 0, sizeX, sizeY])
@@ -61,7 +58,6 @@ const VoronoiChart = ({
     const delaunay = Delaunay.from(points)
     const voronoi = delaunay.voronoi([0, 0, sizeX, sizeY])
 
-    // Draw Delaunay Triangles
     if (mode === "delaunay" || mode === "both") {
       svg
         .append("path")
@@ -73,7 +69,6 @@ const VoronoiChart = ({
         .attr("stroke-opacity", mode === "both" ? 0.6 : 1)
     }
 
-    // Draw Voronoi Cells
     if (mode === "voronoi" || mode === "both") {
       svg
         .append("path")
@@ -84,7 +79,6 @@ const VoronoiChart = ({
         .attr("stroke-linejoin", "round")
     }
 
-    // Optional Centroid Dots
     if (showDots) {
       points.forEach(([x, y]) => {
         svg
@@ -114,30 +108,29 @@ const VoronoiChart = ({
 
   return (
     <div>
-      <div ref={wrapperRef} className="bg-white rounded overflow-hidden border border-gray-100">
+      <div ref={wrapperRef}>
         <svg
           ref={ref}
-          className={`w-full h-auto ${className}`}
+          className={` ${className}`}
           viewBox={`0 0 ${sizeX} ${sizeY}`}
-          xmlns="http://www.w3.org/2000/svg"
         />
       </div>
       <div className="grid sm:grid-cols-3 gap-5 mt-5">
         <IconButton
-          onClick={() => setSeed(Math.floor(Math.random() * 100000))}
+          onClick={() => setSeed(Math.floor(Math.random() * 2000))}
           Icon={RotateCwIcon}
         >
           Regenerate
         </IconButton>
         <IconButton onClick={copy} Icon={ClipboardIcon}>
-          Copy SVG
+          Copy
         </IconButton>
         <IconButton
-          className="bg-teal-700 border-teal-700 hover:border-teal-800 text-white hover:bg-teal-800 hover:text-white"
+          className="bg-green-600 border-green-600 hover:border-green-700 text-white hover:bg-green-700 hover:text-white"
           onClick={() => downloadFile("voronoi.svg")}
           Icon={DownloadIcon}
         >
-          Download SVG
+          Download
         </IconButton>
       </div>
     </div>
