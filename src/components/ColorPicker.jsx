@@ -38,13 +38,13 @@ const ColorPicker = ({
           )
         })}
 
-        <div className="flex items-center border border-gray-200 dark:border-zinc-700 rounded text-gray-500 dark:text-zinc-300 text-sm mt-1 overflow-hidden">
-          <div className="px-1.5 h-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center">
+        <div className="flex items-center h-7 border border-gray-200 dark:border-zinc-700 rounded bg-white dark:bg-zinc-900 text-gray-500 dark:text-zinc-300 text-sm mt-1 focus-within:ring-1 focus-within:ring-teal-500 focus-within:border-teal-500">
+          <span className="pl-2 pr-1 flex items-center justify-center select-none text-gray-400 dark:text-zinc-500">
             <HashIcon className="w-3.5 h-3.5" />
-          </div>
+          </span>
           <input
-            className="h-7 w-20 px-1 bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 font-mono text-xs focus:outline-none uppercase"
-            value={activeHex}
+            className="h-full w-16 pr-2 bg-transparent text-gray-800 dark:text-zinc-200 font-mono text-xs focus:outline-none uppercase"
+            value={activeHex || ""}
             placeholder="HEX"
             maxLength={6}
             onChange={(e) => onValueChange(e.target.value.replace("#", ""))}
