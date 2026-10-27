@@ -60,8 +60,9 @@ const RidgeChart = ({
       .y((d) => d[1])
       .curve(curveBasis)
 
-    const startY = 35
-    const endY = sizeY - 35
+    // Dynamic startY with headroom so high peaks never get chopped off at the top
+    const startY = Math.max(50, Math.round(amplitude * 0.55 + 20))
+    const endY = sizeY - 25
     const lineSpacing = (endY - startY) / (lineCount - 1)
     const centerX = sizeX / 2
     const stepX = 5
@@ -70,6 +71,8 @@ const RidgeChart = ({
 
     for (let i = 0; i < lineCount; i++) {
       const baseY = startY + i * lineSpacing
+      // Gentle taper for the top 2-3 rows so the first ridge builds up organically
+      const topTaper = Math.min(1, (i + 1) / 3)
       const points = []
 
       // Full edge-to-edge calculation (0 to sizeX)
@@ -81,7 +84,7 @@ const RidgeChart = ({
         const n2 = 0.35 * simplex(x * noiseScale * 2.5, i * 0.18, seed + 10)
         const rawNoise = Math.max(0, n1 + n2)
 
-        const peakY = baseY - rawNoise * amplitude * envelope
+        const peakY = Math.max(10, baseY - rawNoise * amplitude * envelope * topTaper)
         points.push([x, peakY])
       }
 
