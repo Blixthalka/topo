@@ -23,7 +23,7 @@ const BAYER_8X8 = [
 ].map((row) => row.map((v) => (v + 0.5) / 64))
 
 const DitherChart = ({
-  pixelSize = 4,
+  pixelSize = 2,
   algorithm = "bayer4",
   pattern = "sphere",
   imageElement = null,
@@ -32,7 +32,7 @@ const DitherChart = ({
   zoom = 1.0,
   onZoomChange = null,
   contrast = 1.7,
-  shape = "square",
+  shape = "cross",
   invert = false,
   dotColor = "#000000",
   onDropFile = null,

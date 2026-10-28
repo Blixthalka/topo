@@ -7,8 +7,8 @@ import { Upload, X, ImageIcon, RotateCcw } from "lucide-react"
 const DitherSettings = () => {
   const [algorithm, setAlgorithm] = useState("bayer4")
   const [pattern, setPattern] = useState("sphere")
-  const [pixelSize, setPixelSize] = useState(4)
-  const [shape, setShape] = useState("square")
+  const [pixelSize, setPixelSize] = useState(2)
+  const [shape, setShape] = useState("cross")
   const [invert, setInvert] = useState(false)
   const [contrast, setContrast] = useState(1.7)
   const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 })
