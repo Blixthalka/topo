@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react"
 import { select } from "d3-selection"
 import { createNoise3D } from "simplex-noise"
-import { RotateCwIcon, ClipboardIcon, DownloadIcon, Upload, Move } from "lucide-react"
+import { RotateCwIcon, ClipboardIcon, DownloadIcon, Upload } from "lucide-react"
 import IconButton from "./IconButton"
 
 const BAYER_4X4 = [
@@ -48,13 +48,55 @@ const DitherChart = ({
   const sizeX = 600
   const sizeY = 400
 
+  // Calculate maximum panning bounds so image can never be dragged outside canvas
+  const getClampedOffset = useCallback(
+    (rawX, rawY) => {
+      if (!imageElement || !imageElement.naturalWidth || !imageElement.naturalHeight) {
+        return { x: 0, y: 0 }
+      }
+      const imgAspect = imageElement.naturalWidth / imageElement.naturalHeight
+      const canvasAspect = sizeX / sizeY
+      let drawW, drawH
+
+      if (fitMode === "contain") {
+        if (imgAspect > canvasAspect) {
+          drawW = sizeX
+          drawH = sizeX / imgAspect
+        } else {
+          drawH = sizeY
+          drawW = sizeY * imgAspect
+        }
+      } else {
+        if (imgAspect > canvasAspect) {
+          drawH = sizeY
+          drawW = sizeY * imgAspect
+        } else {
+          drawW = sizeX
+          drawH = sizeX / imgAspect
+        }
+      }
+
+      const maxOffsetX = Math.max(0, (drawW - sizeX) / 2)
+      const maxOffsetY = Math.max(0, (drawH - sizeY) / 2)
+
+      return {
+        x: Math.round(Math.max(-maxOffsetX, Math.min(maxOffsetX, rawX))),
+        y: Math.round(Math.max(-maxOffsetY, Math.min(maxOffsetY, rawY))),
+      }
+    },
+    [imageElement, fitMode, sizeX, sizeY]
+  )
+
+  const maxOffset = getClampedOffset(Infinity, Infinity)
+  const canPan = maxOffset.x > 0 || maxOffset.y > 0
+
   // Dragging / panning handlers on canvas
   const handleMouseDown = useCallback((e) => {
-    if (!imageElement || !onImageOffsetChange) return
+    if (!canPan || !onImageOffsetChange) return
     setIsPanning(true)
     panStartRef.current = { x: e.clientX, y: e.clientY }
     initialOffsetRef.current = { ...imageOffset }
-  }, [imageElement, imageOffset, onImageOffsetChange])
+  }, [canPan, imageOffset, onImageOffsetChange])
 
   const handleMouseMove = useCallback((e) => {
     if (!isPanning || !onImageOffsetChange) return
@@ -65,11 +107,8 @@ const DitherChart = ({
     const dx = (e.clientX - panStartRef.current.x) * scaleFactorX
     const dy = (e.clientY - panStartRef.current.y) * scaleFactorY
 
-    onImageOffsetChange({
-      x: Math.round(initialOffsetRef.current.x + dx),
-      y: Math.round(initialOffsetRef.current.y + dy),
-    })
-  }, [isPanning, onImageOffsetChange, sizeX, sizeY])
+    onImageOffsetChange(getClampedOffset(initialOffsetRef.current.x + dx, initialOffsetRef.current.y + dy))
+  }, [isPanning, onImageOffsetChange, getClampedOffset, sizeX, sizeY])
 
   const handleMouseUp = useCallback(() => {
     setIsPanning(false)
@@ -77,11 +116,11 @@ const DitherChart = ({
 
   // Touch handlers for mobile / touch devices
   const handleTouchStart = useCallback((e) => {
-    if (!imageElement || !onImageOffsetChange || e.touches.length !== 1) return
+    if (!canPan || !onImageOffsetChange || e.touches.length !== 1) return
     setIsPanning(true)
     panStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
     initialOffsetRef.current = { ...imageOffset }
-  }, [imageElement, imageOffset, onImageOffsetChange])
+  }, [canPan, imageOffset, onImageOffsetChange])
 
   const handleTouchMove = useCallback((e) => {
     if (!isPanning || !onImageOffsetChange || e.touches.length !== 1) return
@@ -92,11 +131,8 @@ const DitherChart = ({
     const dx = (e.touches[0].clientX - panStartRef.current.x) * scaleFactorX
     const dy = (e.touches[0].clientY - panStartRef.current.y) * scaleFactorY
 
-    onImageOffsetChange({
-      x: Math.round(initialOffsetRef.current.x + dx),
-      y: Math.round(initialOffsetRef.current.y + dy),
-    })
-  }, [isPanning, onImageOffsetChange, sizeX, sizeY])
+    onImageOffsetChange(getClampedOffset(initialOffsetRef.current.x + dx, initialOffsetRef.current.y + dy))
+  }, [isPanning, onImageOffsetChange, getClampedOffset, sizeX, sizeY])
 
   useEffect(() => {
     if (isPanning) {
@@ -163,8 +199,9 @@ const DitherChart = ({
           }
         }
 
-        const drawX = (sizeX - drawW) / 2 + imageOffset.x
-        const drawY = (sizeY - drawH) / 2 + imageOffset.y
+        const clamped = getClampedOffset(imageOffset.x, imageOffset.y)
+        const drawX = (sizeX - drawW) / 2 + clamped.x
+        const drawY = (sizeY - drawH) / 2 + clamped.y
 
         ctx.drawImage(imageElement, drawX, drawY, drawW, drawH)
         const fullImgData = ctx.getImageData(0, 0, sizeX, sizeY).data
@@ -325,7 +362,7 @@ const DitherChart = ({
     if (d) {
       svg.append("path").attr("d", d).attr("fill", dotColor)
     }
-  }, [pixelSize, algorithm, pattern, imageElement, imageOffset, fitMode, contrast, shape, invert, dotColor, seed])
+  }, [pixelSize, algorithm, pattern, imageElement, imageOffset, fitMode, contrast, shape, invert, dotColor, seed, getClampedOffset])
 
   const copy = () => {
     const contents = select(wrapperRef.current).html()
@@ -370,7 +407,7 @@ const DitherChart = ({
         onMouseMove={handleMouseMove}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        className={`relative ${imageElement ? (isPanning ? "cursor-grabbing" : "cursor-grab") : ""}`}
+        className={`relative ${canPan ? (isPanning ? "cursor-grabbing" : "cursor-grab") : ""}`}
       >
         <svg
           ref={ref}
@@ -378,14 +415,6 @@ const DitherChart = ({
           className={`w-full h-auto ${className}`}
           viewBox={`0 0 ${sizeX} ${sizeY}`}
         />
-
-        {/* Repositioning indicator badge when custom image is active */}
-        {imageElement && (
-          <div className="absolute top-2 right-2 px-2 py-1 rounded bg-black/60 dark:bg-zinc-900/80 text-white backdrop-blur-sm text-[11px] font-mono flex items-center gap-1.5 pointer-events-none shadow-sm">
-            <Move className="w-3 h-3 opacity-80" />
-            <span>drag canvas to pan</span>
-          </div>
-        )}
 
         {/* Drag over overlay on canvas */}
         {isDragOver && (

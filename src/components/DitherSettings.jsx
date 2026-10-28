@@ -144,7 +144,7 @@ const DitherSettings = () => {
                 Drop image to dither, click to browse, or paste with <kbd className="px-1.5 py-0.5 text-[10px] bg-gray-200 dark:bg-zinc-700 rounded font-mono">Cmd+V</kbd>
               </p>
               <p className="text-[11px] text-gray-400 dark:text-zinc-500">
-                PNG, JPG, SVG, WebP · drag canvas to reposition
+                PNG, JPG, SVG, WebP
               </p>
             </div>
           </div>
@@ -166,7 +166,7 @@ const DitherSettings = () => {
                   </p>
                 </div>
                 <p className="text-[11px] text-gray-400 dark:text-zinc-500">
-                  {imageInfo?.size || "Loaded"} · Drag canvas to pan
+                  {imageInfo?.size || "Loaded"}
                 </p>
               </div>
             </div>
