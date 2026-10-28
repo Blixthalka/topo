@@ -5,7 +5,7 @@ import ColorPicker from "./ColorPicker"
 
 const PillsSettings = () => {
   const [columns, setColumns] = useState(32)
-  const [pillLength, setPillLength] = useState(16)
+  const [pillLength, setPillLength] = useState(14)
   const [sizing, setSizing] = useState("uniform")
   const [patternType, setPatternType] = useState("noise")
   const [customColor, setCustomColor] = useState(null)
@@ -68,7 +68,7 @@ const PillsSettings = () => {
           label="Pill Length"
           selected={pillLength}
           onValueChange={(v) => setPillLength(v)}
-          values={[10, 14, 18, 22, 26]}
+          values={[6, 8, 10, 14, 18, 22, 26]}
         />
 
         <ColorPicker

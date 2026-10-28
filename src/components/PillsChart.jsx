@@ -6,7 +6,7 @@ import IconButton from "./IconButton"
 
 const PillsChart = ({
   columns = 32,
-  pillLength = 16,
+  pillLength = 14,
   sizing = "uniform", // "uniform" | "dynamic"
   patternType = "noise",
   pillColor = "#71717a",
