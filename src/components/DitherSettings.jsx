@@ -3,7 +3,7 @@ import DitherChart from "./DitherChart"
 import SelectButtons from "./SelectButtons"
 import SelectDropdown from "./SelectDropdown"
 import ColorPicker from "./ColorPicker"
-import { Upload, X, RotateCcw } from "lucide-react"
+import { Upload, X } from "lucide-react"
 
 const ALGORITHM_OPTIONS = [
   { label: "Atkinson (Macintosh '84)", value: "atkinson" },
@@ -109,8 +109,18 @@ const DitherSettings = () => {
         className=""
       />
 
-      {/* Image Upload Dropzone / Active Card */}
+      {/* Image Upload Dropzone / Active Bar */}
       <div className="w-full">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            if (e.target.files?.[0]) handleFile(e.target.files[0])
+          }}
+        />
+
         {!imageElement ? (
           <div
             role="button"
@@ -138,15 +148,6 @@ const DitherSettings = () => {
                 : "border-gray-300 dark:border-zinc-700 hover:border-gray-900 dark:hover:border-zinc-100 bg-gray-50/50 dark:bg-zinc-800/40"
             }`}
           >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files?.[0]) handleFile(e.target.files[0])
-              }}
-            />
             <div className="flex flex-col items-center justify-center gap-1.5 py-1">
               <div className="p-1.5 rounded-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 shadow-sm text-gray-700 dark:text-zinc-300">
                 <Upload className="w-4 h-4" />
@@ -160,37 +161,21 @@ const DitherSettings = () => {
             </div>
           </div>
         ) : (
-          <div className="border border-gray-200 dark:border-zinc-700 rounded-lg p-2.5 sm:p-3 bg-gray-50/70 dark:bg-zinc-800/60 flex items-center justify-between gap-3 shadow-sm">
-            <div className="w-10 h-10 rounded border border-gray-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-900 flex-shrink-0 flex items-center justify-center">
-              <img
-                src={imageElement.src}
-                alt="Source thumbnail"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              {(imageOffset.x !== 0 || imageOffset.y !== 0 || zoom !== 1.0) && (
-                <button
-                  onClick={() => {
-                    setImageOffset({ x: 0, y: 0 })
-                    setZoom(1.0)
-                  }}
-                  title="Reset zoom and position to center"
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-700 dark:text-zinc-300 transition-colors"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  <span>Reset</span>
-                </button>
-              )}
-              <button
-                onClick={clearImage}
-                title="Remove image and revert to procedural shapes"
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-700 dark:text-zinc-300 transition-colors"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>Clear</span>
-              </button>
-            </div>
+          <div className="border border-gray-200 dark:border-zinc-700 rounded-lg px-3 py-2 bg-gray-50/70 dark:bg-zinc-800/60 flex items-center justify-between gap-3 shadow-sm">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="text-xs text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white transition-colors font-mono"
+            >
+              Click or drop to replace image
+            </button>
+            <button
+              onClick={clearImage}
+              title="Remove image and revert to procedural shapes"
+              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-700 dark:text-zinc-300 transition-colors font-mono"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Clear</span>
+            </button>
           </div>
         )}
       </div>
