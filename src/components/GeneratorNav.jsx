@@ -7,6 +7,7 @@ const GENERATORS = [
   { name: "Voronoi", path: "/voronoi/" },
   { name: "Halftone", path: "/halftone/" },
   { name: "Flow Matrix", path: "/flow-matrix/" },
+  { name: "Dither", path: "/dither/" },
 ]
 
 const GeneratorNav = () => {
