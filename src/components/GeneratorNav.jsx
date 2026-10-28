@@ -6,8 +6,8 @@ const GENERATORS = [
   { name: "Topography", path: "/" },
   { name: "Ridge Lines", path: "/ridges/" },
   { name: "Voronoi", path: "/voronoi/" },
-  { name: "Dots", path: "/dots/" },
-  { name: "Pills", path: "/pills/" },
+  { name: "Halftone", path: "/halftone/" },
+  { name: "Flow Matrix", path: "/flow-matrix/" },
 ]
 
 const GeneratorNav = () => {
@@ -43,7 +43,8 @@ const GeneratorNav = () => {
     const current = (location?.pathname || "").replace(/\/+$/, "") || "/"
     const target = href.replace(/\/+$/, "") || "/"
     if (target === "/") return current === "/"
-    if (target === "/dots") return current === "/dots" || current === "/halftone"
+    if (target === "/halftone") return current === "/halftone" || current === "/dots"
+    if (target === "/flow-matrix") return current === "/flow-matrix" || current === "/pills"
     return current === target || current.startsWith(target + "/")
   }
 

@@ -87,7 +87,7 @@ const PillsChart = ({
     navigator.clipboard.writeText(contents)
   }
 
-  const downloadFile = (name = "pills.svg") => {
+  const downloadFile = (name = "flow-matrix.svg") => {
     const contents = select(wrapperRef.current).html()
     const blob = new Blob([contents], { type: "image/svg+xml;charset=utf-8" })
     const dlink = document.createElement("a")
@@ -124,7 +124,7 @@ const PillsChart = ({
         </IconButton>
         <IconButton
           className="bg-green-600 border-green-600 hover:border-green-700 !text-white dark:!text-white hover:bg-green-700"
-          onClick={() => downloadFile("pills.svg")}
+          onClick={() => downloadFile("flow-matrix.svg")}
           Icon={DownloadIcon}
         >
           Download

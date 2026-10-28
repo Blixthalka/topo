@@ -74,7 +74,7 @@ const HalftoneChart = ({
     navigator.clipboard.writeText(contents)
   }
 
-  const downloadFile = (name = "dots.svg") => {
+  const downloadFile = (name = "halftone.svg") => {
     const contents = select(wrapperRef.current).html()
     const blob = new Blob([contents], { type: "image/svg+xml;charset=utf-8" })
     const dlink = document.createElement("a")
@@ -110,7 +110,7 @@ const HalftoneChart = ({
         </IconButton>
         <IconButton
           className="bg-green-600 border-green-600 hover:border-green-700 !text-white dark:!text-white hover:bg-green-700"
-          onClick={() => downloadFile("dots.svg")}
+          onClick={() => downloadFile("halftone.svg")}
           Icon={DownloadIcon}
         >
           Download
