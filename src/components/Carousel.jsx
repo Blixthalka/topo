@@ -18,7 +18,7 @@ const Carousel = ({ images = [], alt = "", autoplay = true, interval = 5000 }) =
 
   return (
     <div className="relative">
-      <div className="overflow-hidden rounded-lg shadow-sm border">
+      <div className="overflow-hidden rounded-lg shadow-sm border border-gray-200 dark:border-zinc-800">
         <div
           className="flex transition-transform duration-500"
           style={{
@@ -61,7 +61,9 @@ const Carousel = ({ images = [], alt = "", autoplay = true, interval = 5000 }) =
             key={i}
             onClick={() => go(i)}
             aria-label={`Go to slide ${i + 1}`}
-            className={`w-2 h-2 rounded-full transition-colors ${i === index ? "bg-green-600" : "bg-gray-300"}`}
+            className={`w-2 h-2 rounded-full transition-colors ${
+              i === index ? "bg-green-600 dark:bg-emerald-400" : "bg-gray-300 dark:bg-zinc-700"
+            }`}
           />
         ))}
       </div>
