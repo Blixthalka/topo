@@ -29,6 +29,8 @@ const DitherChart = ({
   imageElement = null,
   imageOffset = { x: 0, y: 0 },
   onImageOffsetChange = null,
+  zoom = 1.0,
+  onZoomChange = null,
   fitMode = "cover",
   contrast = 1.0,
   shape = "square",
@@ -50,45 +52,48 @@ const DitherChart = ({
 
   // Calculate maximum panning bounds so image can never be dragged outside canvas
   const getClampedOffset = useCallback(
-    (rawX, rawY) => {
+    (rawX, rawY, currentZoom = zoom) => {
       if (!imageElement || !imageElement.naturalWidth || !imageElement.naturalHeight) {
         return { x: 0, y: 0 }
       }
       const imgAspect = imageElement.naturalWidth / imageElement.naturalHeight
       const canvasAspect = sizeX / sizeY
-      let drawW, drawH
+      let baseW, baseH
 
       if (fitMode === "contain") {
         if (imgAspect > canvasAspect) {
-          drawW = sizeX
-          drawH = sizeX / imgAspect
+          baseW = sizeX
+          baseH = sizeX / imgAspect
         } else {
-          drawH = sizeY
-          drawW = sizeY * imgAspect
+          baseH = sizeY
+          baseW = sizeY * imgAspect
         }
       } else {
         if (imgAspect > canvasAspect) {
-          drawH = sizeY
-          drawW = sizeY * imgAspect
+          baseH = sizeY
+          baseW = sizeY * imgAspect
         } else {
-          drawW = sizeX
-          drawH = sizeX / imgAspect
+          baseW = sizeX
+          baseH = sizeX / imgAspect
         }
       }
 
-      const maxOffsetX = Math.max(0, (drawW - sizeX) / 2)
-      const maxOffsetY = Math.max(0, (drawH - sizeY) / 2)
+      const drawW = baseW * currentZoom
+      const drawH = baseH * currentZoom
+
+      const maxOffsetX = Math.abs(drawW - sizeX) / 2
+      const maxOffsetY = Math.abs(drawH - sizeY) / 2
 
       return {
         x: Math.round(Math.max(-maxOffsetX, Math.min(maxOffsetX, rawX))),
         y: Math.round(Math.max(-maxOffsetY, Math.min(maxOffsetY, rawY))),
       }
     },
-    [imageElement, fitMode, sizeX, sizeY]
+    [imageElement, fitMode, zoom, sizeX, sizeY]
   )
 
   const maxOffset = getClampedOffset(Infinity, Infinity)
-  const canPan = maxOffset.x > 0 || maxOffset.y > 0
+  const canPan = maxOffset.x > 1 || maxOffset.y > 1
 
   // Dragging / panning handlers on canvas
   const handleMouseDown = useCallback((e) => {
@@ -145,6 +150,24 @@ const DitherChart = ({
     }
   }, [isPanning, handleMouseUp])
 
+  // Wheel / trackpad pinch to zoom on canvas
+  useEffect(() => {
+    const el = wrapperRef.current
+    if (!el || !imageElement || !onZoomChange) return
+
+    const handleWheel = (e) => {
+      // Zoom with Ctrl / Cmd + wheel, or trackpad pinch gesture (fires with e.ctrlKey = true on Mac)
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault()
+        const factor = e.deltaY < 0 ? 1.06 : 0.94
+        onZoomChange((prev) => Math.min(3.0, Math.max(0.2, Math.round(prev * factor * 100) / 100)))
+      }
+    }
+
+    el.addEventListener("wheel", handleWheel, { passive: false })
+    return () => el.removeEventListener("wheel", handleWheel)
+  }, [imageElement, onZoomChange])
+
   useEffect(() => {
     select(ref.current).selectAll("*").remove()
     const svg = select(ref.current)
@@ -164,7 +187,7 @@ const DitherChart = ({
     const centerY = sizeY / 2
     const maxRadius = Math.hypot(centerX, centerY)
 
-    // Pre-render image to full 600x400 canvas with fitMode and drag offsets
+    // Pre-render image to full 600x400 canvas with fitMode, zoom, and drag offsets
     let imageLuminanceGrid = null
     if (imageElement && imageElement.complete && imageElement.naturalWidth > 0) {
       try {
@@ -178,26 +201,29 @@ const DitherChart = ({
         const imgAspect = imgW / imgH
         const canvasAspect = sizeX / sizeY
 
-        let drawW, drawH
+        let baseW, baseH
         if (fitMode === "contain") {
           // Fit entire image inside canvas without cutting any edge
           if (imgAspect > canvasAspect) {
-            drawW = sizeX
-            drawH = sizeX / imgAspect
+            baseW = sizeX
+            baseH = sizeX / imgAspect
           } else {
-            drawH = sizeY
-            drawW = sizeY * imgAspect
+            baseH = sizeY
+            baseW = sizeY * imgAspect
           }
         } else {
           // Fill canvas (cover) - draggable to reveal overflowing portions
           if (imgAspect > canvasAspect) {
-            drawH = sizeY
-            drawW = sizeY * imgAspect
+            baseH = sizeY
+            baseW = sizeY * imgAspect
           } else {
-            drawW = sizeX
-            drawH = sizeX / imgAspect
+            baseW = sizeX
+            baseH = sizeX / imgAspect
           }
         }
+
+        const drawW = baseW * zoom
+        const drawH = baseH * zoom
 
         const clamped = getClampedOffset(imageOffset.x, imageOffset.y)
         const drawX = (sizeX - drawW) / 2 + clamped.x
@@ -362,7 +388,7 @@ const DitherChart = ({
     if (d) {
       svg.append("path").attr("d", d).attr("fill", dotColor)
     }
-  }, [pixelSize, algorithm, pattern, imageElement, imageOffset, fitMode, contrast, shape, invert, dotColor, seed, getClampedOffset])
+  }, [pixelSize, algorithm, pattern, imageElement, imageOffset, zoom, fitMode, contrast, shape, invert, dotColor, seed, getClampedOffset])
 
   const copy = () => {
     const contents = select(wrapperRef.current).html()

@@ -13,6 +13,7 @@ const DitherSettings = () => {
   const [contrast, setContrast] = useState(1.0)
   const [fitMode, setFitMode] = useState("cover") // "cover" | "contain"
   const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1.0)
   const [customColor, setCustomColor] = useState(null)
   const [isDark, setIsDark] = useState(false)
 
@@ -42,6 +43,7 @@ const DitherSettings = () => {
       img.onload = () => {
         setImageElement(img)
         setImageOffset({ x: 0, y: 0 })
+        setZoom(1.0)
         const sizeStr = file.size > 1024 * 1024
           ? (file.size / (1024 * 1024)).toFixed(1) + " MB"
           : (file.size / 1024).toFixed(0) + " KB"
@@ -75,6 +77,7 @@ const DitherSettings = () => {
     setImageElement(null)
     setImageInfo(null)
     setImageOffset({ x: 0, y: 0 })
+    setZoom(1.0)
     if (fileInputRef.current) fileInputRef.current.value = ""
   }
 
@@ -88,6 +91,8 @@ const DitherSettings = () => {
         imageElement={imageElement}
         imageOffset={imageOffset}
         onImageOffsetChange={setImageOffset}
+        zoom={zoom}
+        onZoomChange={setZoom}
         fitMode={fitMode}
         contrast={contrast}
         pixelSize={pixelSize}
@@ -171,14 +176,17 @@ const DitherSettings = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {(imageOffset.x !== 0 || imageOffset.y !== 0) && (
+              {(imageOffset.x !== 0 || imageOffset.y !== 0 || zoom !== 1.0) && (
                 <button
-                  onClick={() => setImageOffset({ x: 0, y: 0 })}
-                  title="Reset pan position to center"
+                  onClick={() => {
+                    setImageOffset({ x: 0, y: 0 })
+                    setZoom(1.0)
+                  }}
+                  title="Reset zoom and position to center"
                   className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-700 dark:text-zinc-300 transition-colors"
                 >
                   <RotateCcw className="w-3 h-3" />
-                  <span>Center</span>
+                  <span>Reset</span>
                 </button>
               )}
               <button
@@ -214,6 +222,7 @@ const DitherSettings = () => {
             onValueChange={(v) => {
               setFitMode(v)
               setImageOffset({ x: 0, y: 0 })
+              setZoom(1.0)
             }}
             values={[
               { label: "Fill (Cover)", value: "cover" },
@@ -231,6 +240,23 @@ const DitherSettings = () => {
               { label: "Noise", value: "noise" },
               { label: "Linear", value: "linear" },
               { label: "Radial", value: "radial" },
+            ]}
+          />
+        )}
+
+        {imageElement && (
+          <SelectButtons
+            label="Zoom"
+            selected={zoom}
+            onValueChange={(v) => setZoom(v)}
+            values={[
+              { label: "25%", value: 0.25 },
+              { label: "50%", value: 0.5 },
+              { label: "75%", value: 0.75 },
+              { label: "100%", value: 1.0 },
+              { label: "125%", value: 1.25 },
+              { label: "150%", value: 1.5 },
+              { label: "200%", value: 2.0 },
             ]}
           />
         )}
