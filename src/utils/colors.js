@@ -1,6 +1,6 @@
 export const DEFAULT_COLORS = [
   // Monochromes & Neutrals
-  { hex: "09090b", name: "Pitch Black" },
+  { hex: "000000", name: "Black" },
   { hex: "71717a", name: "Zinc Grey" },
   { hex: "cbd5e1", name: "Cool Silver" },
   { hex: "ffffff", name: "Pure White" },

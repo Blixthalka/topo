@@ -7,7 +7,7 @@ import IconButton from "./IconButton"
 const VoronoiChart = ({
   pointsCount = 60,
   strokeWidth = 2,
-  strokeColor = "#71717a",
+  strokeColor = "#000000",
   className = "",
 }) => {
   const ref = useRef()

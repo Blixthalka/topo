@@ -23,8 +23,8 @@ const RidgeSettings = () => {
     return () => observer.disconnect()
   }, [])
 
-  // In dark mode default to white (#ffffff), in light mode default to black (#09090b)
-  const effectiveStrokeColor = customStrokeColor || (isDark ? "ffffff" : "09090b")
+  // In dark mode default to Lavender (#c084fc), in light mode default to black (#000000)
+  const effectiveStrokeColor = customStrokeColor || (isDark ? "c084fc" : "000000")
 
   return (
     <div className="p-5 border border-gray-200 dark:border-zinc-800 shadow-sm rounded grid gap-5 bg-white dark:bg-zinc-900">

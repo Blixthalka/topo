@@ -20,7 +20,7 @@ const ChartSettings = () => {
     return () => observer.disconnect()
   }, [])
 
-  const effectiveStrokeColor = customStrokeColor || (isDark ? "cbd5e1" : "71717a")
+  const effectiveStrokeColor = customStrokeColor || (isDark ? "c084fc" : "000000")
 
   return (
     <div className="p-5 border border-gray-200 dark:border-zinc-800 shadow-sm rounded grid gap-5 bg-white dark:bg-zinc-900">
