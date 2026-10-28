@@ -6,6 +6,7 @@ import ColorPicker from "./ColorPicker"
 const PillsSettings = () => {
   const [columns, setColumns] = useState(32)
   const [pillLength, setPillLength] = useState(8)
+  const [pillWidth, setPillWidth] = useState(2)
   const [sizing, setSizing] = useState("uniform")
   const [patternType, setPatternType] = useState("noise")
   const [customColor, setCustomColor] = useState(null)
@@ -29,6 +30,7 @@ const PillsSettings = () => {
       <PillsChart
         columns={columns}
         pillLength={pillLength}
+        pillWidth={pillWidth}
         sizing={sizing}
         patternType={patternType}
         pillColor={"#" + effectiveColor}
@@ -58,17 +60,24 @@ const PillsSettings = () => {
         />
 
         <SelectButtons
+          label="Length"
+          selected={pillLength}
+          onValueChange={(v) => setPillLength(v)}
+          values={[6, 8, 10, 14, 18, 22, 26]}
+        />
+
+        <SelectButtons
+          label="Width"
+          selected={pillWidth}
+          onValueChange={(v) => setPillWidth(v)}
+          values={[1, 2, 3, 4, 6, 8]}
+        />
+
+        <SelectButtons
           label="Density"
           selected={columns}
           onValueChange={(v) => setColumns(v)}
           values={[16, 24, 32, 40, 48]}
-        />
-
-        <SelectButtons
-          label="Pill Length"
-          selected={pillLength}
-          onValueChange={(v) => setPillLength(v)}
-          values={[6, 8, 10, 14, 18, 22, 26]}
         />
 
         <ColorPicker

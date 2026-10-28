@@ -7,6 +7,7 @@ import IconButton from "./IconButton"
 const PillsChart = ({
   columns = 32,
   pillLength = 8,
+  pillWidth = 2,
   sizing = "uniform", // "uniform" | "dynamic"
   patternType = "noise",
   pillColor = "#000000",
@@ -63,11 +64,13 @@ const PillsChart = ({
         let len, w
         if (sizing === "uniform") {
           len = pillLength
-          w = Math.max(2, Math.round(pillLength * 0.28))
+          w = pillWidth
         } else {
-          len = Math.max(3, factor * pillLength * 1.5)
-          w = Math.max(1.8, factor * pillLength * 0.38)
+          len = Math.max(2, factor * pillLength * 1.5)
+          w = Math.max(1, factor * pillWidth * 1.5)
         }
+
+        const rx = Math.min(len, w) / 2
 
         svg
           .append("rect")
@@ -75,12 +78,12 @@ const PillsChart = ({
           .attr("y", -w / 2)
           .attr("width", len)
           .attr("height", w)
-          .attr("rx", w / 2)
+          .attr("rx", rx)
           .attr("transform", `translate(${x}, ${y}) rotate(${angle})`)
           .attr("fill", pillColor)
       }
     }
-  }, [seed, columns, pillLength, sizing, patternType, pillColor])
+  }, [seed, columns, pillLength, pillWidth, sizing, patternType, pillColor])
 
   const copy = () => {
     const contents = select(wrapperRef.current).html()
