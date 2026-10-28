@@ -10,7 +10,7 @@ const DitherSettings = () => {
   const [pixelSize, setPixelSize] = useState(4)
   const [shape, setShape] = useState("square")
   const [invert, setInvert] = useState(false)
-  const [contrast, setContrast] = useState(1.0)
+  const [contrast, setContrast] = useState(1.7)
   const [fitMode, setFitMode] = useState("cover") // "cover" | "contain"
   const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1.0)
@@ -265,7 +265,7 @@ const DitherSettings = () => {
           label="Pixel Size"
           selected={pixelSize}
           onValueChange={(v) => setPixelSize(v)}
-          values={[1, 2, 3, 4, 6, 8]}
+          values={[2, 3, 4, 6, 8]}
         />
 
         <SelectButtons

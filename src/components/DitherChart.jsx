@@ -32,7 +32,7 @@ const DitherChart = ({
   zoom = 1.0,
   onZoomChange = null,
   fitMode = "cover",
-  contrast = 1.0,
+  contrast = 1.7,
   shape = "square",
   invert = false,
   dotColor = "#000000",
@@ -180,7 +180,7 @@ const DitherChart = ({
       }
     })
 
-    const step = Math.max(1, pixelSize)
+    const step = Math.max(2, pixelSize)
     const cols = Math.floor(sizeX / step)
     const rows = Math.floor(sizeY / step)
     const centerX = sizeX / 2
