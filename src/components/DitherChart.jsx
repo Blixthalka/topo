@@ -291,10 +291,10 @@ const DitherChart = ({
 
         {/* Drag over overlay on canvas */}
         {isDragOver && (
-          <div className="absolute inset-0 bg-white/85 dark:bg-zinc-900/85 backdrop-blur-sm border-2 border-dashed border-gray-900 dark:border-zinc-100 rounded flex flex-col items-center justify-center gap-2 pointer-events-none transition-all">
-            <Upload className="w-8 h-8 text-gray-900 dark:text-zinc-100 animate-bounce" />
-            <p className="text-sm font-semibold text-gray-900 dark:text-zinc-100">
-              Drop image to dither into SVG
+          <div className="absolute inset-0 bg-white/90 dark:bg-zinc-950/90 border border-dashed border-gray-900 dark:border-zinc-100 rounded flex flex-col items-center justify-center gap-1.5 pointer-events-none transition-all">
+            <Upload className="w-5 h-5 text-gray-900 dark:text-zinc-100" />
+            <p className="text-xs font-mono text-gray-900 dark:text-zinc-100">
+              drop image to dither
             </p>
           </div>
         )}
