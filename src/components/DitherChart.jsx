@@ -121,7 +121,7 @@ const DitherChart = ({
       }
     })
 
-    const step = Math.max(2, pixelSize)
+    const step = Math.max(1, pixelSize)
     const cols = Math.floor(sizeX / step)
     const rows = Math.floor(sizeY / step)
     const centerX = sizeX / 2

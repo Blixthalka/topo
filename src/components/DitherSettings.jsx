@@ -239,7 +239,7 @@ const DitherSettings = () => {
           label="Pixel Size"
           selected={pixelSize}
           onValueChange={(v) => setPixelSize(v)}
-          values={[2, 3, 4, 6, 8]}
+          values={[1, 2, 3, 4, 6, 8]}
         />
 
         <SelectButtons
