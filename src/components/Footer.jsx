@@ -4,8 +4,8 @@ import DarkModeToggle from "./DarkModeToggle"
 
 const Footer = () => {
   return (
-    <footer className="my-16 sm:my-20 text-center select-none flex flex-col items-center">
-      <DarkModeToggle className="mb-4" />
+    <footer className="mt-20 sm:mt-24 mb-20 sm:mb-24 text-center select-none flex flex-col items-center">
+      <DarkModeToggle className="mb-7" />
       <p className="text-xs font-mono text-gray-400 dark:text-neutral-500">
         topo · by{" "}
         <a
