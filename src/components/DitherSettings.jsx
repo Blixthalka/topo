@@ -169,7 +169,7 @@ const DitherSettings = () => {
                   </p>
                 </div>
                 <p className="text-[11px] text-gray-400 dark:text-zinc-500">
-                  {imageInfo?.size || "Loaded"}
+                  {imageInfo?.size || "Loaded"}{Math.round(zoom * 100) !== 100 ? ` · ${Math.round(zoom * 100)}%` : ""}
                 </p>
               </div>
             </div>
@@ -215,17 +215,14 @@ const DitherSettings = () => {
 
         {imageElement ? (
           <SelectButtons
-            label="Zoom"
-            selected={zoom}
-            onValueChange={(v) => setZoom(v)}
+            label="Contrast"
+            selected={contrast}
+            onValueChange={(v) => setContrast(v)}
             values={[
-              { label: "25%", value: 0.25 },
-              { label: "50%", value: 0.5 },
-              { label: "75%", value: 0.75 },
-              { label: "100%", value: 1.0 },
-              { label: "125%", value: 1.25 },
-              { label: "150%", value: 1.5 },
-              { label: "200%", value: 2.0 },
+              { label: "Low", value: 0.7 },
+              { label: "Normal", value: 1.0 },
+              { label: "Punchy", value: 1.3 },
+              { label: "High", value: 1.7 },
             ]}
           />
         ) : (
@@ -270,20 +267,6 @@ const DitherSettings = () => {
             { label: "Invert", value: true },
           ]}
         />
-
-        {imageElement && (
-          <SelectButtons
-            label="Contrast"
-            selected={contrast}
-            onValueChange={(v) => setContrast(v)}
-            values={[
-              { label: "Low", value: 0.7 },
-              { label: "Normal", value: 1.0 },
-              { label: "Punchy", value: 1.3 },
-              { label: "High", value: 1.7 },
-            ]}
-          />
-        )}
 
         <ColorPicker
           label="Dot Color"

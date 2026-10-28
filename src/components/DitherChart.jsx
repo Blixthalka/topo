@@ -49,6 +49,16 @@ const DitherChart = ({
   const sizeX = 600
   const sizeY = 400
 
+  const imageOffsetRef = useRef(imageOffset)
+  useEffect(() => {
+    imageOffsetRef.current = imageOffset
+  }, [imageOffset])
+
+  const zoomRef = useRef(zoom)
+  useEffect(() => {
+    zoomRef.current = zoom
+  }, [zoom])
+
   // Calculate maximum panning bounds so image can never be dragged outside canvas
   const getClampedOffset = useCallback(
     (rawX, rawY, currentZoom = zoom) => {
@@ -82,10 +92,9 @@ const DitherChart = ({
     [imageElement, zoom, sizeX, sizeY]
   )
 
-  const maxOffset = getClampedOffset(Infinity, Infinity)
-  const canPan = maxOffset.x > 1 || maxOffset.y > 1
+  const canPan = Boolean(imageElement && imageElement.complete)
 
-  // Dragging / panning handlers on canvas
+  // Dragging / panning handlers on canvas (like Google Maps)
   const handleMouseDown = useCallback((e) => {
     if (!canPan || !onImageOffsetChange) return
     setIsPanning(true)
@@ -109,25 +118,58 @@ const DitherChart = ({
     setIsPanning(false)
   }, [])
 
-  // Touch handlers for mobile / touch devices
+  // Touch handlers for mobile / touch devices (1-finger pan, 2-finger pinch zoom)
+  const touchStartRef = useRef(null)
+
   const handleTouchStart = useCallback((e) => {
-    if (!canPan || !onImageOffsetChange || e.touches.length !== 1) return
-    setIsPanning(true)
-    panStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
-    initialOffsetRef.current = { ...imageOffset }
-  }, [canPan, imageOffset, onImageOffsetChange])
+    if (!canPan || !onImageOffsetChange) return
+    if (e.touches.length === 1) {
+      setIsPanning(true)
+      panStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+      initialOffsetRef.current = { ...imageOffset }
+    } else if (e.touches.length === 2 && onZoomChange) {
+      setIsPanning(false)
+      const t1 = e.touches[0]
+      const t2 = e.touches[1]
+      touchStartRef.current = {
+        dist: Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY),
+        zoom: zoomRef.current,
+        offset: { ...imageOffsetRef.current },
+        midX: (t1.clientX + t2.clientX) / 2,
+        midY: (t1.clientY + t2.clientY) / 2,
+      }
+    }
+  }, [canPan, onImageOffsetChange, onZoomChange, imageOffset])
 
   const handleTouchMove = useCallback((e) => {
-    if (!isPanning || !onImageOffsetChange || e.touches.length !== 1) return
+    if (!imageElement || !onImageOffsetChange) return
     const rect = wrapperRef.current?.getBoundingClientRect()
     if (!rect) return
-    const scaleFactorX = sizeX / rect.width
-    const scaleFactorY = sizeY / rect.height
-    const dx = (e.touches[0].clientX - panStartRef.current.x) * scaleFactorX
-    const dy = (e.touches[0].clientY - panStartRef.current.y) * scaleFactorY
 
-    onImageOffsetChange(getClampedOffset(initialOffsetRef.current.x + dx, initialOffsetRef.current.y + dy))
-  }, [isPanning, onImageOffsetChange, getClampedOffset, sizeX, sizeY])
+    if (e.touches.length === 1 && isPanning) {
+      const scaleFactorX = sizeX / rect.width
+      const scaleFactorY = sizeY / rect.height
+      const dx = (e.touches[0].clientX - panStartRef.current.x) * scaleFactorX
+      const dy = (e.touches[0].clientY - panStartRef.current.y) * scaleFactorY
+      onImageOffsetChange(getClampedOffset(initialOffsetRef.current.x + dx, initialOffsetRef.current.y + dy))
+    } else if (e.touches.length === 2 && touchStartRef.current && onZoomChange) {
+      e.preventDefault()
+      const t1 = e.touches[0]
+      const t2 = e.touches[1]
+      const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY)
+      const scale = dist / touchStartRef.current.dist
+      const nextZoom = Math.max(0.2, Math.min(8.0, +(touchStartRef.current.zoom * scale).toFixed(3)))
+
+      const cursorX = (touchStartRef.current.midX - rect.left) * (sizeX / rect.width)
+      const cursorY = (touchStartRef.current.midY - rect.top) * (sizeY / rect.height)
+      const ratio = nextZoom / touchStartRef.current.zoom
+      const targetX = touchStartRef.current.offset.x - (cursorX - sizeX / 2 - touchStartRef.current.offset.x) * (ratio - 1)
+      const targetY = touchStartRef.current.offset.y - (cursorY - sizeY / 2 - touchStartRef.current.offset.y) * (ratio - 1)
+
+      onZoomChange(nextZoom)
+      onImageOffsetChange(getClampedOffset(targetX, targetY, nextZoom))
+    }
+  }, [imageElement, isPanning, onImageOffsetChange, onZoomChange, getClampedOffset, sizeX, sizeY])
 
   useEffect(() => {
     if (isPanning) {
@@ -140,23 +182,66 @@ const DitherChart = ({
     }
   }, [isPanning, handleMouseUp])
 
-  // Wheel / trackpad pinch to zoom on canvas
+  // Wheel zoom like a map (direct scroll on canvas, focal zoom towards mouse cursor)
   useEffect(() => {
     const el = wrapperRef.current
     if (!el || !imageElement || !onZoomChange) return
 
     const handleWheel = (e) => {
-      // Zoom with Ctrl / Cmd + wheel, or trackpad pinch gesture (fires with e.ctrlKey = true on Mac)
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault()
-        const factor = e.deltaY < 0 ? 1.06 : 0.94
-        onZoomChange((prev) => Math.min(3.0, Math.max(0.2, Math.round(prev * factor * 100) / 100)))
+      e.preventDefault()
+      const rect = el.getBoundingClientRect()
+      if (!rect.width || !rect.height) return
+
+      // Cursor position within the 600x400 SVG viewBox
+      const cursorX = Math.max(0, Math.min(sizeX, (e.clientX - rect.left) * (sizeX / rect.width)))
+      const cursorY = Math.max(0, Math.min(sizeY, (e.clientY - rect.top) * (sizeY / rect.height)))
+
+      // Map zoom factor: scroll up zooms in, scroll down zooms out
+      const factor = Math.pow(0.9985, e.deltaY)
+      const currentZoom = zoomRef.current
+      const nextZoom = Math.max(0.2, Math.min(8.0, +(currentZoom * factor).toFixed(3)))
+
+      if (Math.abs(nextZoom - currentZoom) > 0.001) {
+        if (onImageOffsetChange) {
+          const ratio = nextZoom / currentZoom
+          const currentOffset = imageOffsetRef.current
+          const targetX = currentOffset.x - (cursorX - sizeX / 2 - currentOffset.x) * (ratio - 1)
+          const targetY = currentOffset.y - (cursorY - sizeY / 2 - currentOffset.y) * (ratio - 1)
+          onImageOffsetChange(getClampedOffset(targetX, targetY, nextZoom))
+        }
+        onZoomChange(nextZoom)
       }
     }
 
     el.addEventListener("wheel", handleWheel, { passive: false })
     return () => el.removeEventListener("wheel", handleWheel)
-  }, [imageElement, onZoomChange])
+  }, [imageElement, onZoomChange, onImageOffsetChange, getClampedOffset, sizeX, sizeY])
+
+  // Double click to zoom in like a map (Shift + double click to zoom out)
+  const handleDoubleClick = useCallback(
+    (e) => {
+      if (!imageElement || !onZoomChange) return
+      const rect = wrapperRef.current?.getBoundingClientRect()
+      if (!rect || !rect.width || !rect.height) return
+
+      const cursorX = Math.max(0, Math.min(sizeX, (e.clientX - rect.left) * (sizeX / rect.width)))
+      const cursorY = Math.max(0, Math.min(sizeY, (e.clientY - rect.top) * (sizeY / rect.height)))
+
+      const factor = e.shiftKey ? 0.6 : 1.6
+      const currentZoom = zoomRef.current
+      const nextZoom = Math.max(0.2, Math.min(8.0, +(currentZoom * factor).toFixed(2)))
+
+      if (onImageOffsetChange) {
+        const ratio = nextZoom / currentZoom
+        const currentOffset = imageOffsetRef.current
+        const targetX = currentOffset.x - (cursorX - sizeX / 2 - currentOffset.x) * (ratio - 1)
+        const targetY = currentOffset.y - (cursorY - sizeY / 2 - currentOffset.y) * (ratio - 1)
+        onImageOffsetChange(getClampedOffset(targetX, targetY, nextZoom))
+      }
+      onZoomChange(nextZoom)
+    },
+    [imageElement, onZoomChange, onImageOffsetChange, getClampedOffset, sizeX, sizeY]
+  )
 
   useEffect(() => {
     select(ref.current).selectAll("*").remove()
@@ -412,6 +497,7 @@ const DitherChart = ({
         onMouseMove={handleMouseMove}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
+        onDoubleClick={handleDoubleClick}
         className={`relative ${canPan ? (isPanning ? "cursor-grabbing" : "cursor-grab") : ""}`}
       >
         <svg
