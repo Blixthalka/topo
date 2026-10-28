@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react"
 import DitherChart from "./DitherChart"
 import SelectButtons from "./SelectButtons"
 import ColorPicker from "./ColorPicker"
-import { Upload, X, ImageIcon, RotateCcw } from "lucide-react"
+import { Upload, X, RotateCcw } from "lucide-react"
 
 const DitherSettings = () => {
   const [algorithm, setAlgorithm] = useState("bayer4")
@@ -18,7 +18,6 @@ const DitherSettings = () => {
 
   // Custom image upload & paste state
   const [imageElement, setImageElement] = useState(null)
-  const [imageInfo, setImageInfo] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef(null)
 
@@ -43,10 +42,6 @@ const DitherSettings = () => {
         setImageElement(img)
         setImageOffset({ x: 0, y: 0 })
         setZoom(1.0)
-        const sizeStr = file.size > 1024 * 1024
-          ? (file.size / (1024 * 1024)).toFixed(1) + " MB"
-          : (file.size / 1024).toFixed(0) + " KB"
-        setImageInfo({ name: file.name || "Pasted Graphic", size: sizeStr })
       }
       img.src = e.target.result
     }
@@ -74,7 +69,6 @@ const DitherSettings = () => {
 
   const clearImage = () => {
     setImageElement(null)
-    setImageInfo(null)
     setImageOffset({ x: 0, y: 0 })
     setZoom(1.0)
     if (fileInputRef.current) fileInputRef.current.value = ""
@@ -152,26 +146,13 @@ const DitherSettings = () => {
             </div>
           </div>
         ) : (
-          <div className="border border-gray-200 dark:border-zinc-700 rounded-lg p-3 bg-gray-50/70 dark:bg-zinc-800/60 flex items-center justify-between gap-3 shadow-sm">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-10 h-10 rounded border border-gray-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-900 flex-shrink-0 flex items-center justify-center">
-                <img
-                  src={imageElement.src}
-                  alt="Source thumbnail"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="overflow-hidden">
-                <div className="flex items-center gap-1.5">
-                  <ImageIcon className="w-3.5 h-3.5 text-gray-500 dark:text-zinc-400 flex-shrink-0" />
-                  <p className="text-xs font-medium text-gray-900 dark:text-zinc-100 truncate">
-                    {imageInfo?.name || "Custom Graphic"}
-                  </p>
-                </div>
-                <p className="text-[11px] text-gray-400 dark:text-zinc-500">
-                  {imageInfo?.size || "Loaded"}{Math.round(zoom * 100) !== 100 ? ` · ${Math.round(zoom * 100)}%` : ""}
-                </p>
-              </div>
+          <div className="border border-gray-200 dark:border-zinc-700 rounded-lg p-2.5 sm:p-3 bg-gray-50/70 dark:bg-zinc-800/60 flex items-center justify-between gap-3 shadow-sm">
+            <div className="w-10 h-10 rounded border border-gray-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-900 flex-shrink-0 flex items-center justify-center">
+              <img
+                src={imageElement.src}
+                alt="Source thumbnail"
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="flex items-center gap-2">
               {(imageOffset.x !== 0 || imageOffset.y !== 0 || zoom !== 1.0) && (
