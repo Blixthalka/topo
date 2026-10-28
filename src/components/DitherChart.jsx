@@ -22,9 +22,32 @@ const BAYER_8X8 = [
   [63, 31, 55, 23, 61, 29, 53, 21],
 ].map((row) => row.map((v) => (v + 0.5) / 64))
 
+const BAYER_2X2 = [
+  [0, 2],
+  [3, 1],
+].map((row) => row.map((v) => (v + 0.5) / 4))
+
+const CLUSTER_8X8 = [
+  [24, 10, 12, 26, 35, 47, 49, 37],
+  [8, 0, 2, 14, 45, 59, 61, 51],
+  [6, 4, 16, 18, 43, 57, 63, 53],
+  [22, 20, 28, 30, 33, 41, 55, 39],
+  [34, 46, 48, 36, 25, 11, 13, 27],
+  [44, 58, 60, 50, 9, 1, 3, 15],
+  [42, 56, 62, 52, 7, 5, 17, 19],
+  [32, 40, 54, 38, 23, 21, 29, 31],
+].map((row) => row.map((v) => (v + 0.5) / 64))
+
+const LINE_4X4 = [
+  [0, 1, 2, 3],
+  [1, 2, 3, 0],
+  [2, 3, 0, 1],
+  [3, 0, 1, 2],
+].map((row) => row.map((v) => (v + 0.5) / 4))
+
 const DitherChart = ({
   pixelSize = 2,
-  algorithm = "bayer4",
+  algorithm = "atkinson",
   pattern = "sphere",
   imageElement = null,
   imageOffset = { x: 0, y: 0 },
@@ -373,7 +396,53 @@ const DitherChart = ({
       binary[r] = new Uint8Array(cols)
     }
 
-    if (algorithm === "bayer4") {
+    if (algorithm === "atkinson") {
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const oldVal = grid[r][c]
+          const newVal = oldVal >= 0.5 ? 1 : 0
+          binary[r][c] = newVal
+          const err = (oldVal - newVal) / 8
+
+          if (c + 1 < cols) grid[r][c + 1] += err
+          if (c + 2 < cols) grid[r][c + 2] += err
+          if (r + 1 < rows) {
+            if (c - 1 >= 0) grid[r + 1][c - 1] += err
+            grid[r + 1][c] += err
+            if (c + 1 < cols) grid[r + 1][c + 1] += err
+          }
+          if (r + 2 < rows) {
+            grid[r + 2][c] += err
+          }
+        }
+      }
+    } else if (algorithm === "floyd") {
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const oldVal = grid[r][c]
+          const newVal = oldVal >= 0.5 ? 1 : 0
+          binary[r][c] = newVal
+          const err = oldVal - newVal
+
+          if (c + 1 < cols) grid[r][c + 1] += err * (7 / 16)
+          if (r + 1 < rows) {
+            if (c - 1 >= 0) grid[r + 1][c - 1] += err * (3 / 16)
+            grid[r + 1][c] += err * (5 / 16)
+            if (c + 1 < cols) grid[r + 1][c + 1] += err * (1 / 16)
+          }
+        }
+      }
+    } else if (algorithm === "bayer2") {
+      for (let r = 0; r < rows; r++) {
+        const by = r % 2
+        for (let c = 0; c < cols; c++) {
+          const bx = c % 2
+          if (grid[r][c] > BAYER_2X2[by][bx]) {
+            binary[r][c] = 1
+          }
+        }
+      }
+    } else if (algorithm === "bayer4") {
       for (let r = 0; r < rows; r++) {
         const by = r % 4
         for (let c = 0; c < cols; c++) {
@@ -393,7 +462,17 @@ const DitherChart = ({
           }
         }
       }
-    } else if (algorithm === "floyd") {
+    } else if (algorithm === "cluster") {
+      for (let r = 0; r < rows; r++) {
+        const by = r % 8
+        for (let c = 0; c < cols; c++) {
+          const bx = c % 8
+          if (grid[r][c] > CLUSTER_8X8[by][bx]) {
+            binary[r][c] = 1
+          }
+        }
+      }
+    } else if (algorithm === "sierra") {
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
           const oldVal = grid[r][c]
@@ -401,11 +480,48 @@ const DitherChart = ({
           binary[r][c] = newVal
           const err = oldVal - newVal
 
-          if (c + 1 < cols) grid[r][c + 1] += err * (7 / 16)
+          if (c + 1 < cols) grid[r][c + 1] += err * (2 / 4)
           if (r + 1 < rows) {
-            if (c - 1 >= 0) grid[r + 1][c - 1] += err * (3 / 16)
-            grid[r + 1][c] += err * (5 / 16)
-            if (c + 1 < cols) grid[r + 1][c + 1] += err * (1 / 16)
+            if (c - 1 >= 0) grid[r + 1][c - 1] += err * (1 / 4)
+            grid[r + 1][c] += err * (1 / 4)
+          }
+        }
+      }
+    } else if (algorithm === "jjn") {
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const oldVal = grid[r][c]
+          const newVal = oldVal >= 0.5 ? 1 : 0
+          binary[r][c] = newVal
+          const err = (oldVal - newVal) / 48
+
+          if (c + 1 < cols) grid[r][c + 1] += err * 7
+          if (c + 2 < cols) grid[r][c + 2] += err * 5
+
+          if (r + 1 < rows) {
+            if (c - 2 >= 0) grid[r + 1][c - 2] += err * 3
+            if (c - 1 >= 0) grid[r + 1][c - 1] += err * 5
+            grid[r + 1][c] += err * 7
+            if (c + 1 < cols) grid[r + 1][c + 1] += err * 5
+            if (c + 2 < cols) grid[r + 1][c + 2] += err * 3
+          }
+
+          if (r + 2 < rows) {
+            if (c - 2 >= 0) grid[r + 2][c - 2] += err * 1
+            if (c - 1 >= 0) grid[r + 2][c - 1] += err * 3
+            grid[r + 2][c] += err * 5
+            if (c + 1 < cols) grid[r + 2][c + 1] += err * 3
+            if (c + 2 < cols) grid[r + 2][c + 2] += err * 1
+          }
+        }
+      }
+    } else if (algorithm === "lines") {
+      for (let r = 0; r < rows; r++) {
+        const by = r % 4
+        for (let c = 0; c < cols; c++) {
+          const bx = c % 4
+          if (grid[r][c] > LINE_4X4[by][bx]) {
+            binary[r][c] = 1
           }
         }
       }

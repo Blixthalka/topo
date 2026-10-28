@@ -1,11 +1,25 @@
 import React, { useState, useEffect, useRef } from "react"
 import DitherChart from "./DitherChart"
 import SelectButtons from "./SelectButtons"
+import SelectDropdown from "./SelectDropdown"
 import ColorPicker from "./ColorPicker"
 import { Upload, X, RotateCcw } from "lucide-react"
 
+const ALGORITHM_OPTIONS = [
+  { label: "Atkinson (Macintosh '84)", value: "atkinson" },
+  { label: "Floyd-Steinberg", value: "floyd" },
+  { label: "Bayer 2×2 (Chunky 8-Bit)", value: "bayer2" },
+  { label: "Bayer 4×4 (Classic)", value: "bayer4" },
+  { label: "Bayer 8×8 (Smooth)", value: "bayer8" },
+  { label: "Clustered Dot (Halftone)", value: "cluster" },
+  { label: "Sierra Lite", value: "sierra" },
+  { label: "Jarvis-Judice-Ninke (JJN)", value: "jjn" },
+  { label: "Line Screen (Engraving)", value: "lines" },
+  { label: "Noise (Stochastic)", value: "noise" },
+]
+
 const DitherSettings = () => {
-  const [algorithm, setAlgorithm] = useState("bayer4")
+  const [algorithm, setAlgorithm] = useState("atkinson")
   const [pattern, setPattern] = useState("sphere")
   const [pixelSize, setPixelSize] = useState(2)
   const [shape, setShape] = useState("cross")
@@ -182,16 +196,11 @@ const DitherSettings = () => {
       </div>
 
       <div className="grid md:grid-cols-2 gap-5 flex-wrap">
-        <SelectButtons
+        <SelectDropdown
           label="Algorithm"
           selected={algorithm}
           onValueChange={(v) => setAlgorithm(v)}
-          values={[
-            { label: "Bayer 4x4", value: "bayer4" },
-            { label: "Bayer 8x8", value: "bayer8" },
-            { label: "Floyd-Steinberg", value: "floyd" },
-            { label: "Noise", value: "noise" },
-          ]}
+          options={ALGORITHM_OPTIONS}
         />
 
         {imageElement ? (
