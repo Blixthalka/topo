@@ -11,7 +11,7 @@ const HalftonePage = () => {
           Halftone SVG Generator
         </h1>
         <p className="text-gray-500 dark:text-zinc-400 mt-3 text-lg max-w-xl mx-auto">
-          Generate procedural vector dot grids, wave halftones, and organic matrix patterns.
+          Generate a free svg halftone dot pattern for your next design!
         </p>
       </div>
 
@@ -24,8 +24,8 @@ const HalftonePage = () => {
 
 export const Head = () => (
   <Seo
-    title="Halftone SVG Generator - Free Vector Dot Matrix & Waves"
-    description="Generate free procedural vector halftone grids and wave dot matrix patterns in SVG. Customizable dot radius, wave amplitude, density, and instant SVG export."
+    title="Halftone SVG Generator"
+    description="Halftone SVG Generator - generate a free vector dot matrix for your next design!"
     pathname="/halftone/"
   />
 )

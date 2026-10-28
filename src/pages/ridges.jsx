@@ -8,10 +8,10 @@ const RidgesPage = () => {
     <Layout>
       <div className="mb-8 mt-16 sm:mt-20 text-center">
         <h1 className="text-3xl font-medium text-gray-900 dark:text-zinc-100">
-          Ridge Line Plot SVG Generator
+          Ridge Lines SVG Generator
         </h1>
         <p className="text-gray-500 dark:text-zinc-400 mt-3 text-lg max-w-xl mx-auto">
-          Generate stacked mountain ridge plots and Joy Division ("Unknown Pleasures") style procedural elevation waves.
+          Generate a free svg ridge line plot for your next design!
         </p>
       </div>
 
@@ -24,8 +24,8 @@ const RidgesPage = () => {
 
 export const Head = () => (
   <Seo
-    title="Ridge Line Plot SVG Generator - Joy Division Style Mountain Waves"
-    description="Generate Joy Division / Unknown Pleasures style ridge line plots and mountain elevation wave SVGs. Free vector generator with hidden line removal."
+    title="Ridge Lines SVG Generator"
+    description="Ridge Lines SVG Generator - generate free Joy Division style elevation waves for your next design!"
     pathname="/ridges/"
   />
 )
