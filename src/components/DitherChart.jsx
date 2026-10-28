@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import { select } from "d3-selection"
 import { createNoise3D } from "simplex-noise"
-import { RotateCwIcon, ClipboardIcon, DownloadIcon } from "lucide-react"
+import { RotateCwIcon, ClipboardIcon, DownloadIcon, Upload } from "lucide-react"
 import IconButton from "./IconButton"
 
 const BAYER_4X4 = [
@@ -26,14 +26,18 @@ const DitherChart = ({
   pixelSize = 4,
   algorithm = "bayer4",
   pattern = "sphere",
+  imageElement = null,
+  contrast = 1.0,
   shape = "square",
   invert = false,
   dotColor = "#000000",
+  onDropFile = null,
   className = "",
 }) => {
   const ref = useRef()
   const wrapperRef = useRef()
   const [seed, setSeed] = useState(42)
+  const [isDragOver, setIsDragOver] = useState(false)
 
   const sizeX = 600
   const sizeY = 400
@@ -57,6 +61,54 @@ const DitherChart = ({
     const centerY = sizeY / 2
     const maxRadius = Math.hypot(centerX, centerY)
 
+    // Pre-render image to offscreen canvas if custom image is provided
+    let imageLuminanceGrid = null
+    if (imageElement && imageElement.complete && imageElement.naturalWidth > 0) {
+      try {
+        const offscreen = document.createElement("canvas")
+        offscreen.width = cols
+        offscreen.height = rows
+        const ctx = offscreen.getContext("2d", { willReadFrequently: true })
+
+        const imgAspect = imageElement.naturalWidth / imageElement.naturalHeight
+        const gridAspect = cols / rows
+        let sw, sh, sx, sy
+        if (imgAspect > gridAspect) {
+          sh = imageElement.naturalHeight
+          sw = imageElement.naturalHeight * gridAspect
+          sx = (imageElement.naturalWidth - sw) / 2
+          sy = 0
+        } else {
+          sw = imageElement.naturalWidth
+          sh = imageElement.naturalWidth / gridAspect
+          sx = 0
+          sy = (imageElement.naturalHeight - sh) / 2
+        }
+
+        ctx.drawImage(imageElement, sx, sy, sw, sh, 0, 0, cols, rows)
+        const imgData = ctx.getImageData(0, 0, cols, rows).data
+
+        imageLuminanceGrid = []
+        for (let r = 0; r < rows; r++) {
+          imageLuminanceGrid[r] = new Float32Array(cols)
+          for (let c = 0; c < cols; c++) {
+            const idx = (r * cols + c) * 4
+            const a = imgData[idx + 3]
+            if (a < 15) {
+              imageLuminanceGrid[r][c] = invert ? 1 : 0
+            } else {
+              const lum = (0.299 * imgData[idx] + 0.587 * imgData[idx + 1] + 0.114 * imgData[idx + 2]) / 255
+              // Apply contrast curve
+              const adjusted = (lum - 0.5) * contrast + 0.5
+              imageLuminanceGrid[r][c] = Math.max(0, Math.min(1, adjusted))
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error processing dither source image:", err)
+      }
+    }
+
     // Build continuous intensity field in [0, 1]
     const grid = []
     for (let r = 0; r < rows; r++) {
@@ -67,14 +119,15 @@ const DitherChart = ({
         const x = c * step + step / 2
         let val = 0.5
 
-        if (pattern === "sphere") {
+        if (imageLuminanceGrid) {
+          val = imageLuminanceGrid[r][c]
+        } else if (pattern === "sphere") {
           const radius = 135
           const dx = (x - centerX) / radius
           const dy = (y - centerY) / radius
           const d2 = dx * dx + dy * dy
           if (d2 <= 1) {
             const dz = Math.sqrt(1 - d2)
-            // Light source from upper-left
             const lx = -0.577
             const ly = -0.577
             const lz = 0.577
@@ -190,7 +243,7 @@ const DitherChart = ({
     if (d) {
       svg.append("path").attr("d", d).attr("fill", dotColor)
     }
-  }, [pixelSize, algorithm, pattern, shape, invert, dotColor, seed])
+  }, [pixelSize, algorithm, pattern, imageElement, contrast, shape, invert, dotColor, seed])
 
   const copy = () => {
     const contents = select(wrapperRef.current).html()
@@ -212,15 +265,41 @@ const DitherChart = ({
   }
 
   return (
-    <div>
-      <div ref={wrapperRef}>
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+    <div
+      onDragOver={(e) => {
+        if (!onDropFile) return
+        e.preventDefault()
+        setIsDragOver(true)
+      }}
+      onDragLeave={() => setIsDragOver(false)}
+      onDrop={(e) => {
+        if (!onDropFile) return
+        e.preventDefault()
+        setIsDragOver(false)
+        if (e.dataTransfer.files?.[0]) onDropFile(e.dataTransfer.files[0])
+      }}
+      className="relative"
+    >
+      <div ref={wrapperRef} className="relative">
         <svg
           ref={ref}
           xmlns="http://www.w3.org/2000/svg"
           className={`w-full h-auto ${className}`}
           viewBox={`0 0 ${sizeX} ${sizeY}`}
         />
+
+        {/* Drag over overlay on canvas */}
+        {isDragOver && (
+          <div className="absolute inset-0 bg-white/85 dark:bg-zinc-900/85 backdrop-blur-sm border-2 border-dashed border-gray-900 dark:border-zinc-100 rounded flex flex-col items-center justify-center gap-2 pointer-events-none transition-all">
+            <Upload className="w-8 h-8 text-gray-900 dark:text-zinc-100 animate-bounce" />
+            <p className="text-sm font-semibold text-gray-900 dark:text-zinc-100">
+              Drop image to dither into SVG
+            </p>
+          </div>
+        )}
       </div>
+
       <div className="grid sm:grid-cols-3 gap-5 mt-5">
         <IconButton
           onClick={() => setSeed(Math.floor(Math.random() * 5000))}
