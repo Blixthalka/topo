@@ -31,7 +31,6 @@ const DitherChart = ({
   onImageOffsetChange = null,
   zoom = 1.0,
   onZoomChange = null,
-  fitMode = "cover",
   contrast = 1.7,
   shape = "square",
   invert = false,
@@ -60,22 +59,13 @@ const DitherChart = ({
       const canvasAspect = sizeX / sizeY
       let baseW, baseH
 
-      if (fitMode === "contain") {
-        if (imgAspect > canvasAspect) {
-          baseW = sizeX
-          baseH = sizeX / imgAspect
-        } else {
-          baseH = sizeY
-          baseW = sizeY * imgAspect
-        }
+      // Always fit image entirely inside canvas (contain) by default
+      if (imgAspect > canvasAspect) {
+        baseW = sizeX
+        baseH = sizeX / imgAspect
       } else {
-        if (imgAspect > canvasAspect) {
-          baseH = sizeY
-          baseW = sizeY * imgAspect
-        } else {
-          baseW = sizeX
-          baseH = sizeX / imgAspect
-        }
+        baseH = sizeY
+        baseW = sizeY * imgAspect
       }
 
       const drawW = baseW * currentZoom
@@ -89,7 +79,7 @@ const DitherChart = ({
         y: Math.round(Math.max(-maxOffsetY, Math.min(maxOffsetY, rawY))),
       }
     },
-    [imageElement, fitMode, zoom, sizeX, sizeY]
+    [imageElement, zoom, sizeX, sizeY]
   )
 
   const maxOffset = getClampedOffset(Infinity, Infinity)
@@ -187,7 +177,7 @@ const DitherChart = ({
     const centerY = sizeY / 2
     const maxRadius = Math.hypot(centerX, centerY)
 
-    // Pre-render image to full 600x400 canvas with fitMode, zoom, and drag offsets
+    // Pre-render image to full 600x400 canvas with contain fit, zoom, and drag offsets
     let imageLuminanceGrid = null
     if (imageElement && imageElement.complete && imageElement.naturalWidth > 0) {
       try {
@@ -202,24 +192,13 @@ const DitherChart = ({
         const canvasAspect = sizeX / sizeY
 
         let baseW, baseH
-        if (fitMode === "contain") {
-          // Fit entire image inside canvas without cutting any edge
-          if (imgAspect > canvasAspect) {
-            baseW = sizeX
-            baseH = sizeX / imgAspect
-          } else {
-            baseH = sizeY
-            baseW = sizeY * imgAspect
-          }
+        // Fit entire image inside canvas (contain) by default
+        if (imgAspect > canvasAspect) {
+          baseW = sizeX
+          baseH = sizeX / imgAspect
         } else {
-          // Fill canvas (cover) - draggable to reveal overflowing portions
-          if (imgAspect > canvasAspect) {
-            baseH = sizeY
-            baseW = sizeY * imgAspect
-          } else {
-            baseW = sizeX
-            baseH = sizeX / imgAspect
-          }
+          baseH = sizeY
+          baseW = sizeY * imgAspect
         }
 
         const drawW = baseW * zoom
@@ -388,7 +367,7 @@ const DitherChart = ({
     if (d) {
       svg.append("path").attr("d", d).attr("fill", dotColor)
     }
-  }, [pixelSize, algorithm, pattern, imageElement, imageOffset, zoom, fitMode, contrast, shape, invert, dotColor, seed, getClampedOffset])
+  }, [pixelSize, algorithm, pattern, imageElement, imageOffset, zoom, contrast, shape, invert, dotColor, seed, getClampedOffset])
 
   const copy = () => {
     const contents = select(wrapperRef.current).html()

@@ -11,7 +11,6 @@ const DitherSettings = () => {
   const [shape, setShape] = useState("square")
   const [invert, setInvert] = useState(false)
   const [contrast, setContrast] = useState(1.7)
-  const [fitMode, setFitMode] = useState("cover") // "cover" | "contain"
   const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1.0)
   const [customColor, setCustomColor] = useState(null)
@@ -93,7 +92,6 @@ const DitherSettings = () => {
         onImageOffsetChange={setImageOffset}
         zoom={zoom}
         onZoomChange={setZoom}
-        fitMode={fitMode}
         contrast={contrast}
         pixelSize={pixelSize}
         shape={shape}
@@ -217,16 +215,17 @@ const DitherSettings = () => {
 
         {imageElement ? (
           <SelectButtons
-            label="Fit Mode"
-            selected={fitMode}
-            onValueChange={(v) => {
-              setFitMode(v)
-              setImageOffset({ x: 0, y: 0 })
-              setZoom(1.0)
-            }}
+            label="Zoom"
+            selected={zoom}
+            onValueChange={(v) => setZoom(v)}
             values={[
-              { label: "Fill (Cover)", value: "cover" },
-              { label: "Fit (Contain)", value: "contain" },
+              { label: "25%", value: 0.25 },
+              { label: "50%", value: 0.5 },
+              { label: "75%", value: 0.75 },
+              { label: "100%", value: 1.0 },
+              { label: "125%", value: 1.25 },
+              { label: "150%", value: 1.5 },
+              { label: "200%", value: 2.0 },
             ]}
           />
         ) : (
@@ -240,23 +239,6 @@ const DitherSettings = () => {
               { label: "Noise", value: "noise" },
               { label: "Linear", value: "linear" },
               { label: "Radial", value: "radial" },
-            ]}
-          />
-        )}
-
-        {imageElement && (
-          <SelectButtons
-            label="Zoom"
-            selected={zoom}
-            onValueChange={(v) => setZoom(v)}
-            values={[
-              { label: "25%", value: 0.25 },
-              { label: "50%", value: 0.5 },
-              { label: "75%", value: 0.75 },
-              { label: "100%", value: 1.0 },
-              { label: "125%", value: 1.25 },
-              { label: "150%", value: 1.5 },
-              { label: "200%", value: 2.0 },
             ]}
           />
         )}
