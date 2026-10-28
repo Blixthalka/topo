@@ -11,7 +11,18 @@ const DarkModeToggle = ({ className = "" }) => {
     const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
     const initialDark = savedTheme ? savedTheme === "dark" : prefersDark
 
+    const syncThemeColor = (dark) => {
+      let meta = document.querySelector('meta[name="theme-color"]')
+      if (!meta) {
+        meta = document.createElement("meta")
+        meta.name = "theme-color"
+        document.head.appendChild(meta)
+      }
+      meta.content = dark ? "#09090b" : "#f0fdfa"
+    }
+
     setIsDark(initialDark)
+    syncThemeColor(initialDark)
     if (initialDark) {
       document.documentElement.classList.add("dark")
     } else {
@@ -19,7 +30,9 @@ const DarkModeToggle = ({ className = "" }) => {
     }
 
     const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains("dark"))
+      const isCurrentlyDark = document.documentElement.classList.contains("dark")
+      setIsDark(isCurrentlyDark)
+      syncThemeColor(isCurrentlyDark)
     })
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
     return () => observer.disconnect()

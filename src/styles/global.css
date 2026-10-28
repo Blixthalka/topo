@@ -42,6 +42,19 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  background-color: #f0fdfa;
+}
+
+html.dark {
+  background-color: #09090b;
+}
+
 body {
   font-family: 'Reddit Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background-color: #f0fdfa;
+}
+
+html.dark body {
+  background-color: #09090b;
 }
