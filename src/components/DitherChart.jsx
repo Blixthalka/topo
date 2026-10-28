@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState, useCallback } from "react"
 import { select } from "d3-selection"
 import { createNoise3D } from "simplex-noise"
-import { RotateCwIcon, ClipboardIcon, DownloadIcon, Upload } from "lucide-react"
+import { RotateCwIcon, ClipboardIcon, DownloadIcon, Upload, Move } from "lucide-react"
 import IconButton from "./IconButton"
 
 const BAYER_4X4 = [
@@ -27,6 +27,9 @@ const DitherChart = ({
   algorithm = "bayer4",
   pattern = "sphere",
   imageElement = null,
+  imageOffset = { x: 0, y: 0 },
+  onImageOffsetChange = null,
+  fitMode = "cover",
   contrast = 1.0,
   shape = "square",
   invert = false,
@@ -38,9 +41,73 @@ const DitherChart = ({
   const wrapperRef = useRef()
   const [seed, setSeed] = useState(42)
   const [isDragOver, setIsDragOver] = useState(false)
+  const [isPanning, setIsPanning] = useState(false)
+  const panStartRef = useRef({ x: 0, y: 0 })
+  const initialOffsetRef = useRef({ x: 0, y: 0 })
 
   const sizeX = 600
   const sizeY = 400
+
+  // Dragging / panning handlers on canvas
+  const handleMouseDown = useCallback((e) => {
+    if (!imageElement || !onImageOffsetChange) return
+    setIsPanning(true)
+    panStartRef.current = { x: e.clientX, y: e.clientY }
+    initialOffsetRef.current = { ...imageOffset }
+  }, [imageElement, imageOffset, onImageOffsetChange])
+
+  const handleMouseMove = useCallback((e) => {
+    if (!isPanning || !onImageOffsetChange) return
+    const rect = wrapperRef.current?.getBoundingClientRect()
+    if (!rect) return
+    const scaleFactorX = sizeX / rect.width
+    const scaleFactorY = sizeY / rect.height
+    const dx = (e.clientX - panStartRef.current.x) * scaleFactorX
+    const dy = (e.clientY - panStartRef.current.y) * scaleFactorY
+
+    onImageOffsetChange({
+      x: Math.round(initialOffsetRef.current.x + dx),
+      y: Math.round(initialOffsetRef.current.y + dy),
+    })
+  }, [isPanning, onImageOffsetChange, sizeX, sizeY])
+
+  const handleMouseUp = useCallback(() => {
+    setIsPanning(false)
+  }, [])
+
+  // Touch handlers for mobile / touch devices
+  const handleTouchStart = useCallback((e) => {
+    if (!imageElement || !onImageOffsetChange || e.touches.length !== 1) return
+    setIsPanning(true)
+    panStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+    initialOffsetRef.current = { ...imageOffset }
+  }, [imageElement, imageOffset, onImageOffsetChange])
+
+  const handleTouchMove = useCallback((e) => {
+    if (!isPanning || !onImageOffsetChange || e.touches.length !== 1) return
+    const rect = wrapperRef.current?.getBoundingClientRect()
+    if (!rect) return
+    const scaleFactorX = sizeX / rect.width
+    const scaleFactorY = sizeY / rect.height
+    const dx = (e.touches[0].clientX - panStartRef.current.x) * scaleFactorX
+    const dy = (e.touches[0].clientY - panStartRef.current.y) * scaleFactorY
+
+    onImageOffsetChange({
+      x: Math.round(initialOffsetRef.current.x + dx),
+      y: Math.round(initialOffsetRef.current.y + dy),
+    })
+  }, [isPanning, onImageOffsetChange, sizeX, sizeY])
+
+  useEffect(() => {
+    if (isPanning) {
+      window.addEventListener("mouseup", handleMouseUp)
+      window.addEventListener("touchend", handleMouseUp)
+      return () => {
+        window.removeEventListener("mouseup", handleMouseUp)
+        window.removeEventListener("touchend", handleMouseUp)
+      }
+    }
+  }, [isPanning, handleMouseUp])
 
   useEffect(() => {
     select(ref.current).selectAll("*").remove()
@@ -61,44 +128,61 @@ const DitherChart = ({
     const centerY = sizeY / 2
     const maxRadius = Math.hypot(centerX, centerY)
 
-    // Pre-render image to offscreen canvas if custom image is provided
+    // Pre-render image to full 600x400 canvas with fitMode and drag offsets
     let imageLuminanceGrid = null
     if (imageElement && imageElement.complete && imageElement.naturalWidth > 0) {
       try {
         const offscreen = document.createElement("canvas")
-        offscreen.width = cols
-        offscreen.height = rows
+        offscreen.width = sizeX
+        offscreen.height = sizeY
         const ctx = offscreen.getContext("2d", { willReadFrequently: true })
 
-        const imgAspect = imageElement.naturalWidth / imageElement.naturalHeight
-        const gridAspect = cols / rows
-        let sw, sh, sx, sy
-        if (imgAspect > gridAspect) {
-          sh = imageElement.naturalHeight
-          sw = imageElement.naturalHeight * gridAspect
-          sx = (imageElement.naturalWidth - sw) / 2
-          sy = 0
+        const imgW = imageElement.naturalWidth
+        const imgH = imageElement.naturalHeight
+        const imgAspect = imgW / imgH
+        const canvasAspect = sizeX / sizeY
+
+        let drawW, drawH
+        if (fitMode === "contain") {
+          // Fit entire image inside canvas without cutting any edge
+          if (imgAspect > canvasAspect) {
+            drawW = sizeX
+            drawH = sizeX / imgAspect
+          } else {
+            drawH = sizeY
+            drawW = sizeY * imgAspect
+          }
         } else {
-          sw = imageElement.naturalWidth
-          sh = imageElement.naturalWidth / gridAspect
-          sx = 0
-          sy = (imageElement.naturalHeight - sh) / 2
+          // Fill canvas (cover) - draggable to reveal overflowing portions
+          if (imgAspect > canvasAspect) {
+            drawH = sizeY
+            drawW = sizeY * imgAspect
+          } else {
+            drawW = sizeX
+            drawH = sizeX / imgAspect
+          }
         }
 
-        ctx.drawImage(imageElement, sx, sy, sw, sh, 0, 0, cols, rows)
-        const imgData = ctx.getImageData(0, 0, cols, rows).data
+        const drawX = (sizeX - drawW) / 2 + imageOffset.x
+        const drawY = (sizeY - drawH) / 2 + imageOffset.y
+
+        ctx.drawImage(imageElement, drawX, drawY, drawW, drawH)
+        const fullImgData = ctx.getImageData(0, 0, sizeX, sizeY).data
 
         imageLuminanceGrid = []
         for (let r = 0; r < rows; r++) {
           imageLuminanceGrid[r] = new Float32Array(cols)
+          const py = Math.min(sizeY - 1, Math.max(0, Math.floor(r * step + step / 2)))
+
           for (let c = 0; c < cols; c++) {
-            const idx = (r * cols + c) * 4
-            const a = imgData[idx + 3]
+            const px = Math.min(sizeX - 1, Math.max(0, Math.floor(c * step + step / 2)))
+            const idx = (py * sizeX + px) * 4
+            const a = fullImgData[idx + 3]
+
             if (a < 15) {
               imageLuminanceGrid[r][c] = invert ? 1 : 0
             } else {
-              const lum = (0.299 * imgData[idx] + 0.587 * imgData[idx + 1] + 0.114 * imgData[idx + 2]) / 255
-              // Apply contrast curve
+              const lum = (0.299 * fullImgData[idx] + 0.587 * fullImgData[idx + 1] + 0.114 * fullImgData[idx + 2]) / 255
               const adjusted = (lum - 0.5) * contrast + 0.5
               imageLuminanceGrid[r][c] = Math.max(0, Math.min(1, adjusted))
             }
@@ -183,7 +267,6 @@ const DitherChart = ({
         }
       }
     } else if (algorithm === "floyd") {
-      // Floyd-Steinberg error diffusion
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
           const oldVal = grid[r][c]
@@ -200,7 +283,6 @@ const DitherChart = ({
         }
       }
     } else if (algorithm === "noise") {
-      // White noise threshold dither
       let randSeed = seed
       const pseudo = () => {
         randSeed = (randSeed * 9301 + 49297) % 233280
@@ -243,7 +325,7 @@ const DitherChart = ({
     if (d) {
       svg.append("path").attr("d", d).attr("fill", dotColor)
     }
-  }, [pixelSize, algorithm, pattern, imageElement, contrast, shape, invert, dotColor, seed])
+  }, [pixelSize, algorithm, pattern, imageElement, imageOffset, fitMode, contrast, shape, invert, dotColor, seed])
 
   const copy = () => {
     const contents = select(wrapperRef.current).html()
@@ -279,15 +361,31 @@ const DitherChart = ({
         setIsDragOver(false)
         if (e.dataTransfer.files?.[0]) onDropFile(e.dataTransfer.files[0])
       }}
-      className="relative"
+      className="relative select-none"
     >
-      <div ref={wrapperRef} className="relative">
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      <div
+        ref={wrapperRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        className={`relative ${imageElement ? (isPanning ? "cursor-grabbing" : "cursor-grab") : ""}`}
+      >
         <svg
           ref={ref}
           xmlns="http://www.w3.org/2000/svg"
           className={`w-full h-auto ${className}`}
           viewBox={`0 0 ${sizeX} ${sizeY}`}
         />
+
+        {/* Repositioning indicator badge when custom image is active */}
+        {imageElement && (
+          <div className="absolute top-2 right-2 px-2 py-1 rounded bg-black/60 dark:bg-zinc-900/80 text-white backdrop-blur-sm text-[11px] font-mono flex items-center gap-1.5 pointer-events-none shadow-sm">
+            <Move className="w-3 h-3 opacity-80" />
+            <span>drag canvas to pan</span>
+          </div>
+        )}
 
         {/* Drag over overlay on canvas */}
         {isDragOver && (

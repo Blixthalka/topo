@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from "react"
 import DitherChart from "./DitherChart"
 import SelectButtons from "./SelectButtons"
-import IconButton from "./IconButton"
 import ColorPicker from "./ColorPicker"
-import { Upload, X } from "lucide-react"
+import { Upload, X, ImageIcon, RotateCcw } from "lucide-react"
 
 const DitherSettings = () => {
   const [algorithm, setAlgorithm] = useState("bayer4")
@@ -12,11 +11,15 @@ const DitherSettings = () => {
   const [shape, setShape] = useState("square")
   const [invert, setInvert] = useState(false)
   const [contrast, setContrast] = useState(1.0)
+  const [fitMode, setFitMode] = useState("cover") // "cover" | "contain"
+  const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 })
   const [customColor, setCustomColor] = useState(null)
   const [isDark, setIsDark] = useState(false)
 
   // Custom image upload & paste state
   const [imageElement, setImageElement] = useState(null)
+  const [imageInfo, setImageInfo] = useState(null)
+  const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef(null)
 
   useEffect(() => {
@@ -38,13 +41,18 @@ const DitherSettings = () => {
       const img = new window.Image()
       img.onload = () => {
         setImageElement(img)
+        setImageOffset({ x: 0, y: 0 })
+        const sizeStr = file.size > 1024 * 1024
+          ? (file.size / (1024 * 1024)).toFixed(1) + " MB"
+          : (file.size / 1024).toFixed(0) + " KB"
+        setImageInfo({ name: file.name || "Pasted Graphic", size: sizeStr })
       }
       img.src = e.target.result
     }
     reader.readAsDataURL(file)
   }
 
-  // Support direct Cmd+V / Ctrl+V paste anywhere on the page
+  // Support direct Cmd+V / Ctrl+V paste from Figma or clipboard anywhere on the page
   useEffect(() => {
     const handlePaste = (e) => {
       const items = e.clipboardData?.items
@@ -65,6 +73,8 @@ const DitherSettings = () => {
 
   const clearImage = () => {
     setImageElement(null)
+    setImageInfo(null)
+    setImageOffset({ x: 0, y: 0 })
     if (fileInputRef.current) fileInputRef.current.value = ""
   }
 
@@ -76,6 +86,9 @@ const DitherSettings = () => {
         algorithm={algorithm}
         pattern={pattern}
         imageElement={imageElement}
+        imageOffset={imageOffset}
+        onImageOffsetChange={setImageOffset}
+        fitMode={fitMode}
         contrast={contrast}
         pixelSize={pixelSize}
         shape={shape}
@@ -85,62 +98,35 @@ const DitherSettings = () => {
         className=""
       />
 
-      <div className="grid md:grid-cols-2 gap-5 flex-wrap">
-        {/* Source Selector (Procedural + Minimal Upload Pill) */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-500 dark:text-zinc-400 text-sm">Source</span>
-            <span className="text-[11px] text-gray-400 dark:text-zinc-500 font-mono">
-              drop or Cmd+V
-            </span>
-          </div>
-          <div className="flex space-x-2 flex-wrap gap-y-2">
-            {[
-              { label: "Sphere", value: "sphere" },
-              { label: "Waves", value: "waves" },
-              { label: "Noise", value: "noise" },
-              { label: "Linear", value: "linear" },
-              { label: "Radial", value: "radial" },
-            ].map(({ label, value }) => {
-              const isActive = !imageElement && pattern === value
-              return (
-                <IconButton
-                  key={value}
-                  className={`px-2.5 min-w-[2.25rem] ${
-                    isActive
-                      ? "bg-gray-200 border-gray-300 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white font-medium"
-                      : ""
-                  }`}
-                  onClick={() => {
-                    clearImage()
-                    setPattern(value)
-                  }}
-                >
-                  <span>{label}</span>
-                </IconButton>
-              )
-            })}
-
-            {imageElement ? (
-              <IconButton
-                className="px-2.5 min-w-[2.25rem] bg-gray-200 border-gray-300 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white font-medium inline-flex items-center gap-1.5"
-                onClick={clearImage}
-                title="Remove image and revert to procedural shape"
-              >
-                <span>Image</span>
-                <X className="w-3.5 h-3.5 opacity-70 hover:opacity-100" />
-              </IconButton>
-            ) : (
-              <IconButton
-                className="px-2.5 min-w-[2.25rem] text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white inline-flex items-center gap-1"
-                onClick={() => fileInputRef.current?.click()}
-                title="Upload image or drop onto canvas"
-              >
-                <Upload className="w-3 h-3 opacity-60" />
-                <span>Upload</span>
-              </IconButton>
-            )}
-
+      {/* Image Upload Dropzone / Active Card */}
+      <div className="w-full">
+        {!imageElement ? (
+          <div
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault()
+                fileInputRef.current?.click()
+              }
+            }}
+            onDragOver={(e) => {
+              e.preventDefault()
+              setIsDragging(true)
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault()
+              setIsDragging(false)
+              if (e.dataTransfer.files?.[0]) handleFile(e.dataTransfer.files[0])
+            }}
+            onClick={() => fileInputRef.current?.click()}
+            className={`border border-dashed rounded-lg p-3 sm:p-4 text-center cursor-pointer transition-all duration-150 ${
+              isDragging
+                ? "border-gray-900 bg-gray-100 dark:border-zinc-100 dark:bg-zinc-800"
+                : "border-gray-300 dark:border-zinc-700 hover:border-gray-900 dark:hover:border-zinc-100 bg-gray-50/50 dark:bg-zinc-800/40"
+            }`}
+          >
             <input
               ref={fileInputRef}
               type="file"
@@ -150,9 +136,65 @@ const DitherSettings = () => {
                 if (e.target.files?.[0]) handleFile(e.target.files[0])
               }}
             />
+            <div className="flex flex-col items-center justify-center gap-1.5 py-1">
+              <div className="p-1.5 rounded-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 shadow-sm text-gray-700 dark:text-zinc-300">
+                <Upload className="w-4 h-4" />
+              </div>
+              <p className="text-xs font-medium text-gray-800 dark:text-zinc-200">
+                Drop image to dither, click to browse, or paste with <kbd className="px-1.5 py-0.5 text-[10px] bg-gray-200 dark:bg-zinc-700 rounded font-mono">Cmd+V</kbd>
+              </p>
+              <p className="text-[11px] text-gray-400 dark:text-zinc-500">
+                PNG, JPG, SVG, WebP · drag canvas to reposition
+              </p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="border border-gray-200 dark:border-zinc-700 rounded-lg p-3 bg-gray-50/70 dark:bg-zinc-800/60 flex items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="w-10 h-10 rounded border border-gray-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-900 flex-shrink-0 flex items-center justify-center">
+                <img
+                  src={imageElement.src}
+                  alt="Source thumbnail"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="overflow-hidden">
+                <div className="flex items-center gap-1.5">
+                  <ImageIcon className="w-3.5 h-3.5 text-gray-500 dark:text-zinc-400 flex-shrink-0" />
+                  <p className="text-xs font-medium text-gray-900 dark:text-zinc-100 truncate">
+                    {imageInfo?.name || "Custom Graphic"}
+                  </p>
+                </div>
+                <p className="text-[11px] text-gray-400 dark:text-zinc-500">
+                  {imageInfo?.size || "Loaded"} · Drag canvas to pan
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {(imageOffset.x !== 0 || imageOffset.y !== 0) && (
+                <button
+                  onClick={() => setImageOffset({ x: 0, y: 0 })}
+                  title="Reset pan position to center"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-700 dark:text-zinc-300 transition-colors"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Center</span>
+                </button>
+              )}
+              <button
+                onClick={clearImage}
+                title="Remove image and revert to procedural shapes"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-700 dark:text-zinc-300 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Clear</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
+      <div className="grid md:grid-cols-2 gap-5 flex-wrap">
         <SelectButtons
           label="Algorithm"
           selected={algorithm}
@@ -164,6 +206,34 @@ const DitherSettings = () => {
             { label: "Noise", value: "noise" },
           ]}
         />
+
+        {imageElement ? (
+          <SelectButtons
+            label="Fit Mode"
+            selected={fitMode}
+            onValueChange={(v) => {
+              setFitMode(v)
+              setImageOffset({ x: 0, y: 0 })
+            }}
+            values={[
+              { label: "Fill (Cover)", value: "cover" },
+              { label: "Fit (Contain)", value: "contain" },
+            ]}
+          />
+        ) : (
+          <SelectButtons
+            label="Pattern"
+            selected={pattern}
+            onValueChange={(v) => setPattern(v)}
+            values={[
+              { label: "Sphere", value: "sphere" },
+              { label: "Waves", value: "waves" },
+              { label: "Noise", value: "noise" },
+              { label: "Linear", value: "linear" },
+              { label: "Radial", value: "radial" },
+            ]}
+          />
+        )}
 
         <SelectButtons
           label="Pixel Size"
