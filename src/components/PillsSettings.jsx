@@ -44,7 +44,11 @@ const PillsSettings = () => {
           onValueChange={(v) => setPatternType(v)}
           values={[
             { label: "Noise", value: "noise" },
+            { label: "Vortex", value: "vortex" },
             { label: "Ripple", value: "ripple" },
+            { label: "Dipole", value: "dipole" },
+            { label: "Saddle", value: "saddle" },
+            { label: "Interference", value: "interference" },
             { label: "Diagonal", value: "diagonal" },
           ]}
         />

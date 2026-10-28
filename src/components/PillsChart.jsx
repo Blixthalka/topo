@@ -59,6 +59,42 @@ const PillsChart = ({
         } else if (patternType === "diagonal") {
           factor = (Math.sin((x + y) * 0.025 + seed) + 1) / 2
           angle = 45 + Math.sin(x * 0.01 + seed) * 45
+        } else if (patternType === "vortex") {
+          const dx = x - centerX
+          const dy = y - centerY
+          const dist = Math.hypot(dx, dy)
+          const theta = Math.atan2(dy, dx)
+          angle = (theta + dist * 0.012 - seed * 0.2) * (180 / Math.PI) + 90
+          factor = (Math.sin(dist * 0.035 - theta * 2 + seed) + 1) / 2
+        } else if (patternType === "dipole") {
+          const p1x = centerX - 110
+          const p2x = centerX + 110
+          const dx1 = x - p1x
+          const dy1 = y - centerY
+          const dx2 = x - p2x
+          const dy2 = y - centerY
+          const r1Sq = dx1 * dx1 + dy1 * dy1 + 400
+          const r2Sq = dx2 * dx2 + dy2 * dy2 + 400
+          const ex = dx1 / r1Sq - dx2 / r2Sq
+          const ey = dy1 / r1Sq - dy2 / r2Sq
+          angle = (Math.atan2(ey, ex) * 180) / Math.PI
+          factor = Math.min(1, Math.max(0.18, Math.hypot(ex, ey) * 110))
+        } else if (patternType === "saddle") {
+          const dx = (x - centerX) / 80
+          const dy = (y - centerY) / 80
+          angle = (Math.atan2(-dy, dx) * 180) / Math.PI + Math.sin(seed * 0.1) * 20
+          factor = (Math.sin((dx * dx - dy * dy) * 0.8 + seed) + 1) / 2
+        } else if (patternType === "interference") {
+          const p1x = centerX - 85
+          const p2x = centerX + 85
+          const d1 = Math.hypot(x - p1x, y - centerY)
+          const d2 = Math.hypot(x - p2x, y - centerY)
+          const w1 = Math.sin(d1 * 0.04 - seed)
+          const w2 = Math.sin(d2 * 0.04 - seed)
+          const gx = Math.cos(d1 * 0.04 - seed) * ((x - p1x) / (d1 + 1)) + Math.cos(d2 * 0.04 - seed) * ((x - p2x) / (d2 + 1))
+          const gy = Math.cos(d1 * 0.04 - seed) * ((y - centerY) / (d1 + 1)) + Math.cos(d2 * 0.04 - seed) * ((y - centerY) / (d2 + 1))
+          angle = (Math.atan2(gy, gx) * 180) / Math.PI + 90
+          factor = ((w1 + w2) / 2 + 1) / 2
         }
 
         let len, w
